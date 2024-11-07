@@ -52,6 +52,33 @@ class ProductStockManager {
       });
     else this.#productStockMap.set(productName, { ...productStock });
   }
+
+  /**
+   * 구매 요청에 대해서 가능 여부와 재고 정보를 반환합니다.
+   * @param {string} productName - 구매할 상품명
+   * @param {number} quantity - 구매할 수량
+   * @returns {import('../types.js').PurchaseResponseType} - 구매 가능 여부와 해당 상품 재고 정보
+   */
+  isAvailableToPurchase(productName, quantity) {
+    const productStock = this.#productStockMap.get(productName);
+    if (!productStock) return { isAvailable: false };
+    const availableProductStock = ProductStockManager.#checkProductStock(productStock, quantity);
+    if (!availableProductStock) return { isAvailable: false };
+    return { isAvailable: true, ...availableProductStock };
+  }
+
+  /**
+   * 상품 재고 수량과 구매 수량을 비교하여 구매 가능한 경우 해당 상품 재고 정보를 반환합니다.
+   * @param {import('../types.js').SingleProductStockType} productStock - 상품 재고 정보
+   * @param {number} quantity - 구매할 수량
+   * @returns {import('../types.js').SingleProductStockType | undefined} - 구매 가능할 경우 해당 상품 재고 정보
+   */
+  static #checkProductStock(productStock, quantity) {
+    const { normal, promotion } = productStock;
+    const totalQuantity = (normal?.quantity || 0) + (promotion?.quantity || 0);
+    if (totalQuantity < quantity) return undefined;
+    return productStock;
+  }
 }
 
 export default ProductStockManager;

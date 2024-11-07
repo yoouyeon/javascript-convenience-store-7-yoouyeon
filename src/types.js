@@ -27,4 +27,11 @@
  * @typedef {Map<string, SingleProductStockType>} ProductStockType - 상품명을 key로 가지는 전체 상품 재고 정보
  */
 
+/**
+ * @typedef {Object} PurchaseResponseType - 구매 요청에 대한 응답
+ * @property {boolean} isAvailable - 상품 구매 가능 여부
+ * @property {ProductStockInfoType=} normal - 일반 상품 수량 (구매 가능할 경우)
+ * @property {ProductStockInfoType=} promotion - 프로모션 상품 수량 (구매 가능할 경우)
+ */
+
 export {};
