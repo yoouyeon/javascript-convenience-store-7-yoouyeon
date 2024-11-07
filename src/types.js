@@ -40,4 +40,29 @@
  * @property {number} promotion - 프로모션 상품 수량
  */
 
+/**
+ * @typedef {Object} SinglePromotionRawDataType - csv 파일에서 읽어온 프로모션 정보
+ * @property {string} name - 프로모션명
+ * @property {string} buy - 구매 수량
+ * @property {string} get - 증정 수량
+ * @property {string} start_date - 시작일
+ * @property {string} end_date - 종료일
+ */
+
+/**
+ * @typedef {Array<SinglePromotionRawDataType>} PromotionRawDataType - csv 파일에서 읽어온 프로모션 정보 배열
+ */
+
+/**
+ * @typedef {Object} PromotionInfoType - 프로모션 정보
+ * @property {number} buy - 구매 수량
+ * @property {number} get - 증정 수량
+ * @property {Date} startDate - 시작일
+ * @property {Date} endDate - 종료일
+ */
+
+/**
+ * @typedef {Map<string, PromotionInfoType>} PromotionType - 프로모션명을 key로 가지는 전체 프로모션 정보
+ */
+
 export {};
