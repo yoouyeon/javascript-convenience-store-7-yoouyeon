@@ -1,4 +1,7 @@
-import ProductStockManager from './ProductStockManager.js';
+import InventoryManager from './InventoryManager.js';
+
+// TODO : 네이밍 다시 확인하기 (통일되지 않은 부분이 있을 수 있음)
+// TODO : 가독성 고민해보기
 
 const makeFakeStockMap = (fakeStocks) => {
   const stockMap = new Map();
@@ -32,16 +35,16 @@ describe('재고 관리 테스트', () => {
     ]);
 
     // when
-    const productStockManager = new ProductStockManager(PRODUCT_DATA);
+    const inventoryManager = new InventoryManager(PRODUCT_DATA);
 
     // then
-    expect(productStockManager.currentStock).toEqual(EXPECTED_STOCK_MAP);
+    expect(inventoryManager.currentInventory).toEqual(EXPECTED_STOCK_MAP);
   });
 
   describe('구매 가능 여부 확인 테스트', () => {
     test('재고 정보가 없는 상품은 구매 불가능하다.', () => {
       // given
-      const productStockManager = new ProductStockManager(PRODUCT_DATA);
+      const productStockManager = new InventoryManager(PRODUCT_DATA);
 
       // when
       const purchaseResponse = productStockManager.isAvailableToPurchase('제로콜라', 1);
@@ -58,7 +61,7 @@ describe('재고 관리 테스트', () => {
       { productName: '콜라', quantity: 21 },
     ])('재고가 부족한 상품은 구매 불가능하다.', ({ productName, quantity }) => {
       // given
-      const productStockManager = new ProductStockManager(PRODUCT_DATA);
+      const productStockManager = new InventoryManager(PRODUCT_DATA);
 
       // when
       const purchaseResponse = productStockManager.isAvailableToPurchase(productName, quantity);
@@ -99,14 +102,70 @@ describe('재고 관리 테스트', () => {
       },
     ])('재고가 충분한 상품은 구매 가능하다.', ({ input, expected }) => {
       // given
-      const productStockManager = new ProductStockManager(PRODUCT_DATA);
+      const inventoryManager = new InventoryManager(PRODUCT_DATA);
       const { productName, quantity } = input;
 
       // when
-      const purchaseResponse = productStockManager.isAvailableToPurchase(productName, quantity);
+      const purchaseResponse = inventoryManager.isAvailableToPurchase(productName, quantity);
 
       // then
       expect(purchaseResponse).toEqual(expected);
+    });
+  });
+
+  describe('재고 차감 테스트', () => {
+    test.each([
+      {
+        input: { productName: '사이다', quantity: { normal: 1 } },
+        expected: [
+          [
+            '콜라',
+            {
+              normal: { price: 1000, quantity: 10 },
+              promotion: { price: 1000, quantity: 10, promotion: '탄산2+1' },
+            },
+          ],
+          ['사이다', { normal: { price: 1000, quantity: 7 } }],
+          ['오렌지주스', { promotion: { price: 1800, quantity: 9, promotion: 'MD추천상품' } }],
+        ],
+      },
+      {
+        input: { productName: '오렌지주스', quantity: { promotion: 9 } },
+        expected: [
+          [
+            '콜라',
+            {
+              normal: { price: 1000, quantity: 10 },
+              promotion: { price: 1000, quantity: 10, promotion: '탄산2+1' },
+            },
+          ],
+          ['사이다', { normal: { price: 1000, quantity: 8 } }],
+        ],
+      },
+      {
+        input: { productName: '콜라', quantity: { normal: 10, promotion: 1 } },
+        expected: [
+          [
+            '콜라',
+            {
+              promotion: { price: 1000, quantity: 9, promotion: '탄산2+1' },
+            },
+          ],
+          ['사이다', { normal: { price: 1000, quantity: 8 } }],
+          ['오렌지주스', { promotion: { price: 1800, quantity: 9, promotion: 'MD추천상품' } }],
+        ],
+      },
+    ])('차감된 재고는 바로 반영된다.', ({ input, expected }) => {
+      // given
+      const inventoryManager = new InventoryManager(PRODUCT_DATA);
+      const EXPECTED_STOCK_MAP = makeFakeStockMap(expected);
+      const { productName, quantity } = input;
+
+      // when
+      inventoryManager.decreaseStock(productName, quantity);
+
+      // then
+      expect(inventoryManager.currentInventory).toEqual(EXPECTED_STOCK_MAP);
     });
   });
 });

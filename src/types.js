@@ -34,4 +34,10 @@
  * @property {ProductStockInfoType=} promotion - 프로모션 상품 수량 (구매 가능할 경우)
  */
 
+/**
+ * @typedef {Object} RequestDecreaseStockType - 재고 차감 요청 타입
+ * @property {number} normal - 일반 상품 수량
+ * @property {number} promotion - 프로모션 상품 수량
+ */
+
 export {};
