@@ -3,7 +3,7 @@
 import InventoryManager from './InventoryManager.js';
 import PromotionManager from './PromotionManager.js';
 import csvUtils from '../utils/csvUtils.js';
-// import OutputView from '../view/OutputView.js';
+import OutputView from '../view/OutputView.js';
 
 const PRODUCTS_FILE_PATH = 'public/products.md';
 const PROMOTIONS_FILE_PATH = 'public/promotions.md';
@@ -33,9 +33,9 @@ class ConvenienceStore {
   /**
    * 편의점 기능을 실행합니다.
    */
-  run() {
+  async run() {
     this.#checkIsInitialized();
-    // OutputView.showWelcomeMessage();
+    this.#showStartupInfo();
   }
 
   /**
@@ -46,6 +46,14 @@ class ConvenienceStore {
     if (!this.#inventoryManager || !this.#promotionManager) {
       throw new Error('편의점 데이터가 설정되지 않았습니다.');
     }
+  }
+
+  /**
+   * 편의점 시작 정보를 출력합니다 (환영 인사, 재고 상태).
+   */
+  #showStartupInfo() {
+    OutputView.showWelcomeMessage();
+    OutputView.showInventory(this.#inventoryManager.currentInventory);
   }
 }
 
