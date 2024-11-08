@@ -47,7 +47,7 @@ class InventoryManager {
    */
   static #makeStockInfo(productInfo) {
     const { price, quantity, promotion } = productInfo;
-    if (!price || !quantity || Number(quantity) <= 0) return {};
+    if (!price) return {};
     if (!promotion || promotion === 'null') {
       return { normal: { price: Number(price), quantity: Number(quantity) } };
     }
@@ -132,11 +132,6 @@ class InventoryManager {
 
   #updateStock(productName, productStock) {
     const { normal, promotion } = productStock;
-    // console.log(productName);
-    // console.log(normal);
-    // console.log(promotion);
-    if ((!normal || normal.quantity <= 0) && (!promotion || promotion.quantity <= 0))
-      return this.#inventoryMap.delete(productName);
     const newStock = {
       ...InventoryManager.#makeStockInfo(normal || {}),
       ...InventoryManager.#makeStockInfo(promotion || {}),

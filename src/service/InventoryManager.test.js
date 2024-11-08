@@ -140,6 +140,7 @@ describe('재고 관리 테스트', () => {
             },
           ],
           ['사이다', { normal: { price: 1000, quantity: 8 } }],
+          ['오렌지주스', { promotion: { price: 1800, quantity: 0, promotion: 'MD추천상품' } }],
         ],
       },
       {
@@ -148,6 +149,7 @@ describe('재고 관리 테스트', () => {
           [
             '콜라',
             {
+              normal: { price: 1000, quantity: 0 },
               promotion: { price: 1000, quantity: 9, promotion: '탄산2+1' },
             },
           ],
