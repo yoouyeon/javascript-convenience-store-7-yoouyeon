@@ -1,4 +1,4 @@
-import parseCsv from './parseCsv.js';
+import csvUtils from './csvUtils.js';
 
 describe('CSV 파싱 테스트', () => {
   test('CSV 데이터를 파싱한다.', () => {
@@ -12,7 +12,7 @@ describe('CSV 파싱 테스트', () => {
 사이다,1000,7,null`;
 
     // when
-    const result = parseCsv(CSV_DATA);
+    const result = csvUtils.parseCsv(CSV_DATA);
 
     // then
     expect(result).toEqual([
