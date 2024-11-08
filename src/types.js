@@ -35,7 +35,7 @@
  */
 
 /**
- * @typedef {Object} RequestDecreaseStockType - 재고 차감 요청 타입
+ * @typedef {Object} RequestStockType - 재고 관련 요청 타입
  * @property {number} normal - 일반 상품 수량
  * @property {number} promotion - 프로모션 상품 수량
  */
@@ -54,15 +54,18 @@
  */
 
 /**
- * @typedef {Object} PromotionInfoType - 프로모션 정보
- * @property {number} buy - 구매 수량
- * @property {number} get - 증정 수량
- * @property {Date} startDate - 시작일
- * @property {Date} endDate - 종료일
+ * @typedef {import('../src/service/Promotion.js').default} PromotionType - 프로모션 정보
+
+/**
+ * @typedef {Map<string, PromotionInfoType>} PromotionMapType - 프로모션명을 key로 가지는 전체 프로모션 정보
  */
 
 /**
- * @typedef {Map<string, PromotionInfoType>} PromotionType - 프로모션명을 key로 가지는 전체 프로모션 정보
+ * @typedef {Object} PromotionQuantityType - 프로모션 적용 수량 정보
+ * @property {number} buy - 프로모션이 적용되는 정가 구매 수량
+ * @property {number} get - 프로모션이 적용되는 증정 수량
+ * @property {number} nonPromo - 프로모션이 적용되지 않는 수량
+ * @property {number} total - 전체 구매 수량
  */
 
 export {};

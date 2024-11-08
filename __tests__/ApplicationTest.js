@@ -1,6 +1,7 @@
 import { MissionUtils } from '@woowacourse/mission-utils';
 import { EOL as LINE_SEPARATOR } from 'os';
 import App from '../src/App.js';
+import mockNowDate from '../src/utils/test/mockNowDate.js';
 
 const mockQuestions = (inputs) => {
   const messages = [];
@@ -17,12 +18,6 @@ const mockQuestions = (inputs) => {
   });
 
   MissionUtils.Console.readLineAsync.messages = messages;
-};
-
-const mockNowDate = (date = null) => {
-  const mockDateTimes = jest.spyOn(MissionUtils.DateTimes, 'now');
-  mockDateTimes.mockReturnValue(new Date(date));
-  return mockDateTimes;
 };
 
 const getLogSpy = () => {
