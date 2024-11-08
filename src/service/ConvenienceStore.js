@@ -4,6 +4,7 @@ import InventoryManager from './InventoryManager.js';
 import PromotionManager from './PromotionManager.js';
 import csvUtils from '../utils/csvUtils.js';
 import OutputView from '../view/OutputView.js';
+import InputView from '../view/InputView.js';
 
 const PRODUCTS_FILE_PATH = 'public/products.md';
 const PROMOTIONS_FILE_PATH = 'public/promotions.md';
@@ -35,7 +36,7 @@ class ConvenienceStore {
    */
   async run() {
     this.#checkIsInitialized();
-    this.#showStartupInfo();
+    this.#processPurchase();
   }
 
   /**
@@ -45,6 +46,18 @@ class ConvenienceStore {
   #checkIsInitialized() {
     if (!this.#inventoryManager || !this.#promotionManager) {
       throw new Error('편의점 데이터가 설정되지 않았습니다.');
+    }
+  }
+
+  /**
+   * 구매 프로세스를 실행합니다.
+   */
+  async #processPurchase() {
+    this.#showStartupInfo();
+    // TODO : 구매 로직 추가
+    const additionalPurchase = await InputView.getAdditionalPurchase();
+    if (additionalPurchase) {
+      this.#processPurchase();
     }
   }
 

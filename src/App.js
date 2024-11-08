@@ -9,7 +9,7 @@ class App {
 
   async run() {
     await this.#convenienceStore.init();
-    this.#convenienceStore.run();
+    await this.#convenienceStore.run();
   }
 }
 
