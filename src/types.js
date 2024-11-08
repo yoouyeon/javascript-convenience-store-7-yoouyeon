@@ -54,9 +54,6 @@
  */
 
 /**
- * @typedef {import('../src/service/Promotion.js').default} PromotionType - 프로모션 정보
-
-/**
  * @typedef {Map<string, PromotionInfoType>} PromotionMapType - 프로모션명을 key로 가지는 전체 프로모션 정보
  */
 

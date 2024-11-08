@@ -97,7 +97,7 @@ class InventoryManager {
   /**
    * 상품 재고를 차감합니다.
    * @param {string} productName - 상품명
-   * @param {import('../types.js').RequestDecreaseStockType} quantity - 차감할 상품 재고 양
+   * @param {import('../types.js').RequestStockType} quantity - 차감할 상품 재고 양
    */
   decreaseStock(productName, quantity) {
     const productStock = this.#inventoryMap.get(productName);

@@ -1,5 +1,5 @@
 // @ts-check
-import dateUtils from '../utils/dateUtils';
+import dateUtils from '../utils/dateUtils.js';
 
 class Promotion {
   #name;
