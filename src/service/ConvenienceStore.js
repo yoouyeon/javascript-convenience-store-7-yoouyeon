@@ -5,6 +5,7 @@ import PromotionManager from './PromotionManager.js';
 import csvUtils from '../utils/csvUtils.js';
 import OutputView from '../view/OutputView.js';
 import InputView from '../view/InputView.js';
+import retryAsyncWithLog from '../utils/retryAsyncWithLog.js';
 
 const PRODUCTS_FILE_PATH = 'public/products.md';
 const PROMOTIONS_FILE_PATH = 'public/promotions.md';
@@ -55,7 +56,9 @@ class ConvenienceStore {
   async #processPurchase() {
     this.#showStartupInfo();
     // TODO : 구매 로직 추가
-    const additionalPurchase = await InputView.getAdditionalPurchase();
+    const additionalPurchase = await retryAsyncWithLog(
+      InputView.getAdditionalPurchase.bind(InputView)
+    );
     if (additionalPurchase) {
       this.#processPurchase();
     }

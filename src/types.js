@@ -65,4 +65,14 @@
  * @property {number} total - 전체 구매 수량
  */
 
+/**
+ * @typedef {Object} RuleType - 검증 규칙
+ * @property {Function} isInvalid - 검증 함수
+ * @property {string} errorMessage - 에러 메시지
+ */
+
+/**
+ * @typedef {Record<string, RuleType>} RuleSetType - 검증 규칙 세트
+ */
+
 export {};

@@ -1,5 +1,9 @@
+// @ts-check
 import { Console } from '@woowacourse/mission-utils';
+import commonValidation from '../validation/commonValidation.js';
 import OutputView from './OutputView.js';
+
+/** @typedef {import('../utils/CustomError.js').default} CustomError */
 
 // 추가 구매 수량 입력 메시지
 const ADDITIONAL_PURCHASE_MESSAGE = '감사합니다. 구매하고 싶은 다른 상품이 있나요? (Y/N)\n';
@@ -13,10 +17,11 @@ const InputView = {
 
   /**
    * @param {string} userResponse - 사용자 응답
-   * @returns {boolean} 유저 응답이 "Y"인 경우 true, "N"인 경우 false
+   * @returns {void}
+   * @throw {CustomError} 유저 응답이 유효하지 않을 경우
    */
   isYesOrNo(userResponse) {
-    return userResponse === 'Y';
+    commonValidation.checkYesOrNo(userResponse);
   },
 };
 
