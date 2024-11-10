@@ -55,7 +55,7 @@ class ConvenienceStore {
    */
   async #processPurchase() {
     this.#showStartupInfo();
-    // TODO : 구매 로직 추가
+    await this.#purchaseProduct();
     const additionalPurchase = await retryAsyncWithLog(
       InputView.getAdditionalPurchase.bind(InputView)
     );
@@ -70,6 +70,25 @@ class ConvenienceStore {
   #showStartupInfo() {
     OutputView.showWelcomeMessage();
     OutputView.showInventory(this.#inventoryManager.currentInventory);
+  }
+
+  /**
+   * 상품 구매를 처리합니다.
+   */
+  async #purchaseProduct() {
+    // 1. 상품 구매 정보를 입력받는다.
+    const purchaseInfo = await retryAsyncWithLog(this.#inputPurchaseInfo.bind(this));
+  }
+
+  /**
+   * 상품 구매 정보를 입력받아 처리합니다.
+   */
+  async #inputPurchaseInfo() {
+    // 1. 상품 구매 정보를 입력받는다.
+    const products = await InputView.readProducts();
+    // 2. 재고 확인.
+    return products;
+    // 3. 상품 구매 정보를 반환한다.
   }
 }
 
