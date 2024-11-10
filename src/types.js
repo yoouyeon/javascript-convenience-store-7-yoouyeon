@@ -28,13 +28,6 @@
  */
 
 /**
- * @typedef {Object} PurchaseResponseType - 구매 요청에 대한 응답
- * @property {boolean} isAvailable - 상품 구매 가능 여부
- * @property {ProductStockInfoType=} normal - 일반 상품 수량 (구매 가능할 경우)
- * @property {ProductStockInfoType=} promotion - 프로모션 상품 수량 (구매 가능할 경우)
- */
-
-/**
  * @typedef {Object} RequestStockType - 재고 관련 요청 타입
  * @property {number} normal - 일반 상품 수량
  * @property {number} promotion - 프로모션 상품 수량

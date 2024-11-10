@@ -81,14 +81,15 @@ class ConvenienceStore {
   }
 
   /**
-   * 상품 구매 정보를 입력받아 처리합니다.
+   * 상품 구매 정보를 입력받고 재고 확인을 수행합니다.
    */
   async #inputPurchaseInfo() {
-    // 1. 상품 구매 정보를 입력받는다.
     const products = await InputView.readProducts();
-    // 2. 재고 확인.
+    products.forEach((product) => {
+      const [name, quantity] = product;
+      this.#inventoryManager.checkInventory(name, quantity);
+    });
     return products;
-    // 3. 상품 구매 정보를 반환한다.
   }
 }
 

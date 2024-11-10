@@ -42,52 +42,41 @@ describe('재고 관리 테스트', () => {
   });
 
   describe('구매 가능 여부 확인 테스트', () => {
-    test('재고 정보가 없는 상품은 구매 불가능하다.', () => {
+    test('재고 정보가 없는 상품은 에러를 발생시킨다.', () => {
       // given
       const productStockManager = new InventoryManager(PRODUCT_DATA);
-
-      // when
-      const purchaseResponse = productStockManager.isAvailableToPurchase('제로콜라', 1);
+      const NOT_EXIST_PRODUCT = '제로콜라';
 
       // then
-      expect(purchaseResponse).toEqual({
-        isAvailable: false,
-      });
+      expect(() => productStockManager.checkInventory(NOT_EXIST_PRODUCT, 1)).toThrow();
     });
 
     test.each([
       { productName: '사이다', quantity: 9 },
       { productName: '오렌지주스', quantity: 10 },
       { productName: '콜라', quantity: 21 },
-    ])('재고가 부족한 상품은 구매 불가능하다.', ({ productName, quantity }) => {
+    ])('재고가 부족한 상품은 에러를 발생시킨다.', ({ productName, quantity }) => {
       // given
       const productStockManager = new InventoryManager(PRODUCT_DATA);
 
-      // when
-      const purchaseResponse = productStockManager.isAvailableToPurchase(productName, quantity);
-
       // then
-      expect(purchaseResponse).toEqual({
-        isAvailable: false,
-      });
+      expect(() => productStockManager.checkInventory(productName, quantity)).toThrow();
     });
 
     test.each([
       {
         input: { productName: '사이다', quantity: 8 },
-        expected: { isAvailable: true, normal: { price: 1000, quantity: 8 } },
+        expected: { normal: { price: 1000, quantity: 8 } },
       },
       {
         input: { productName: '오렌지주스', quantity: 9 },
         expected: {
-          isAvailable: true,
           promotion: { price: 1800, quantity: 9, promotion: 'MD추천상품' },
         },
       },
       {
         input: { productName: '콜라', quantity: 10 },
         expected: {
-          isAvailable: true,
           normal: { price: 1000, quantity: 10 },
           promotion: { price: 1000, quantity: 10, promotion: '탄산2+1' },
         },
@@ -95,18 +84,17 @@ describe('재고 관리 테스트', () => {
       {
         input: { productName: '콜라', quantity: 20 },
         expected: {
-          isAvailable: true,
           normal: { price: 1000, quantity: 10 },
           promotion: { price: 1000, quantity: 10, promotion: '탄산2+1' },
         },
       },
-    ])('재고가 충분한 상품은 구매 가능하다.', ({ input, expected }) => {
+    ])('재고가 충분한 상품은 재고를 반환한다.', ({ input, expected }) => {
       // given
       const inventoryManager = new InventoryManager(PRODUCT_DATA);
       const { productName, quantity } = input;
 
       // when
-      const purchaseResponse = inventoryManager.isAvailableToPurchase(productName, quantity);
+      const purchaseResponse = inventoryManager.checkInventory(productName, quantity);
 
       // then
       expect(purchaseResponse).toEqual(expected);
