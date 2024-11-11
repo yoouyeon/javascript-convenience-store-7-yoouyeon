@@ -33,10 +33,13 @@ const OutputView = Object.freeze({
    * @param {import('../types.js').ProductStockInfoType} productStock - 상품 재고 정보
    */
   showProduct(productName, productStock) {
-    const { price, quantity: originalQuantity, promotion: originalPromotion } = productStock;
-    const quantity = originalQuantity || '재고 없음';
+    const { price, quantity, promotion: originalPromotion } = productStock;
     const promotion = (originalPromotion !== 'null' && originalPromotion) || '';
-    Console.print(`- ${productName} ${addComma(price)}원 ${quantity}개 ${promotion}`);
+    if (quantity) {
+      Console.print(`- ${productName} ${addComma(price)}원 ${quantity}개 ${promotion}`);
+    } else {
+      Console.print(`- ${productName} ${addComma(price)}원 재고 없음 ${promotion}`);
+    }
   },
 
   /**

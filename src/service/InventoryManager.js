@@ -85,6 +85,20 @@ class InventoryManager {
       const stockInfo = InventoryManager.#makeStockInfo(productInfo);
       this.#setNewStock(name, stockInfo);
     });
+    this.#fillNormalStock();
+  }
+
+  /**
+   * 프로모션 정보만 있는 상품에 대해서 일반 재고 정보를 추가합니다.
+   */
+  #fillNormalStock() {
+    this.#inventoryMap.forEach((productStock, productName) => {
+      if (productStock.promotion && !productStock.normal) {
+        this.#setNewStock(productName, {
+          normal: { price: productStock.promotion.price, quantity: 0 },
+        });
+      }
+    });
   }
 
   /**
