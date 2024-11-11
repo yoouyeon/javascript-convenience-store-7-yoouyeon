@@ -29,6 +29,10 @@ class Promotion {
     return this.#quantity;
   }
 
+  get name() {
+    return this.#name;
+  }
+
   /**
    * 오늘 날짜가 프로모션 기간에 포함되는지 확인합니다.
    * @returns {boolean} 프로모션 적용 가능 여부
@@ -48,11 +52,26 @@ class Promotion {
   getFullQuantity(count, promoStock) {
     const { buy, get } = this.#quantity;
     const { promo, free } = Promotion.#calCount(count, promoStock, buy, get);
-    let nonPromo = 0;
-    if (count - promo - free > 0) {
-      nonPromo = count - promo - free;
-    }
+    const nonPromo = Promotion.#calNonPromoCount(count, promo, free);
     return { promo, free, nonPromo, total: promo + free + nonPromo };
+  }
+
+  /**
+   * 구매 수량을 받아서 프로모션을 적용한 결과를 반환합니다.
+   * @param {number} promoCount - 프로모션을 적용할 수량
+   * @param {number} promoStock - 프로모션 재고
+   * @param {number=} nonPromoCount - 프로모션을 적용하지 않을 수량
+   * @return {import('../types.js').PromotionQuantityType} - 프로모션 적용 수량 정보
+   */
+  getCount(promoCount, promoStock, nonPromoCount) {
+    const { buy, get } = this.#quantity;
+    const calResult = Promotion.#calCount(promoCount, promoStock, buy, get);
+    const nonPromo = Promotion.#calNonPromoCount(promoCount, calResult.promo, calResult.free);
+    return {
+      ...calResult,
+      nonPromo: nonPromo + (nonPromoCount || 0),
+      total: calResult.promo + calResult.free + nonPromo + (nonPromoCount || 0),
+    };
   }
 
   static #calCount(count, promoStock, buy, get) {
@@ -66,42 +85,12 @@ class Promotion {
     return { promo, free };
   }
 
-  // /**
-  //  * 구매 수량을 받아서 프로모션을 적용한 결과를 반환합니다.
-  //  * @param {number} promoQuantity - 프로모션을 적용할 수량
-  //  * @param {number=} nonPromoQuantity - 프로모션을 적용하지 않을 수량
-  //  * @return {import('../types.js').PromotionQuantityType} - 프로모션 적용 수량 정보
-  //  * @example
-  //  * // 프로모션 정보가 { buy: 3, get: 1 }이고, 구매 수량이 3일 때
-  //  * const quantity = promotion.getQuantity(3);
-  //  * console.log(quantity); // { buy: 0, get: 0, nonPromo: 3, total: 3 }
-  //  */
-  // getQuantity(promoQuantity, nonPromoQuantity) {
-  //   const { promo, free, nonPromo, total } =
-  //     this.#getFittedQuantity(promoQuantity);
-  //   return {
-  //     promo,
-  //     free,
-  //     nonPromo: nonPromo + (nonPromoQuantity || 0),
-  //     total: total + (nonPromoQuantity || 0),
-  //   };
-  // }
-
-  // /**
-  //  * 프로모션을 fit하게 적용할 수 있는 최대 promo 수량을 반환합니다.
-  //  * @param {number} promoQuantity - 프로모션을 적용할 수량
-  //  * @return {import('../types.js').PromotionQuantityType} - 프로모션 적용 수량 정보
-  //  */
-  // #getFittedQuantity(promoQuantity) {
-  //   const { buy: promoBuy, get: promoGet } = this.#quantity;
-  //   let { promo, free, nonPromo } = { ...this.getFullQuantity(promoQuantity) };
-  //   while (promo + free + nonPromo > promoQuantity) {
-  //     promo -= promoBuy;
-  //     free -= promoGet;
-  //     nonPromo += promoBuy;
-  //   }
-  //   return { promo, free, nonPromo, total: promo + free + nonPromo };
-  // }
+  static #calNonPromoCount(count, promo, free) {
+    if (count - promo - free > 0) {
+      return count - promo - free;
+    }
+    return 0;
+  }
 }
 
 export default Promotion;

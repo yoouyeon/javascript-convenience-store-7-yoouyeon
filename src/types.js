@@ -52,8 +52,8 @@
 
 /**
  * @typedef {Object} PromotionQuantityType - 프로모션 적용 수량 정보
- * @property {number} buy - 프로모션이 적용되는 정가 구매 수량
- * @property {number} get - 프로모션이 적용되는 증정 수량
+ * @property {number} promo - 프로모션이 적용되는 정가 구매 수량
+ * @property {number} free - 프로모션이 적용되는 증정 수량
  * @property {number} nonPromo - 프로모션이 적용되지 않는 수량
  * @property {number} total - 전체 구매 수량
  */
