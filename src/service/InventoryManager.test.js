@@ -31,7 +31,13 @@ describe('재고 관리 테스트', () => {
         },
       ],
       ['사이다', { normal: { price: 1000, quantity: 8 } }],
-      ['오렌지주스', { promotion: { price: 1800, quantity: 9, promotion: 'MD추천상품' } }],
+      [
+        '오렌지주스',
+        {
+          promotion: { price: 1800, quantity: 9, promotion: 'MD추천상품' },
+          normal: { price: 1800, quantity: 0 },
+        },
+      ],
     ]);
 
     // when
@@ -72,6 +78,7 @@ describe('재고 관리 테스트', () => {
         input: { productName: '오렌지주스', quantity: 9 },
         expected: {
           promotion: { price: 1800, quantity: 9, promotion: 'MD추천상품' },
+          normal: { price: 1800, quantity: 0 },
         },
       },
       {
@@ -114,7 +121,13 @@ describe('재고 관리 테스트', () => {
             },
           ],
           ['사이다', { normal: { price: 1000, quantity: 8 } }],
-          ['오렌지주스', { promotion: { price: 1800, quantity: 2, promotion: 'MD추천상품' } }],
+          [
+            '오렌지주스',
+            {
+              promotion: { price: 1800, quantity: 2, promotion: 'MD추천상품' },
+              normal: { price: 1800, quantity: 0 },
+            },
+          ],
         ],
       },
       {
@@ -128,7 +141,13 @@ describe('재고 관리 테스트', () => {
             },
           ],
           ['사이다', { normal: { price: 1000, quantity: 8 } }],
-          ['오렌지주스', { promotion: { price: 1800, quantity: 9, promotion: 'MD추천상품' } }],
+          [
+            '오렌지주스',
+            {
+              promotion: { price: 1800, quantity: 9, promotion: 'MD추천상품' },
+              normal: { price: 1800, quantity: 0 },
+            },
+          ],
         ],
       },
       {
@@ -142,7 +161,13 @@ describe('재고 관리 테스트', () => {
             },
           ],
           ['사이다', { normal: { price: 1000, quantity: 0 } }],
-          ['오렌지주스', { promotion: { price: 1800, quantity: 9, promotion: 'MD추천상품' } }],
+          [
+            '오렌지주스',
+            {
+              promotion: { price: 1800, quantity: 9, promotion: 'MD추천상품' },
+              normal: { price: 1800, quantity: 0 },
+            },
+          ],
         ],
       },
     ])('프로모션 중일때는 프로모션 재고를 우선으로 차감한다.', ({ input, expected }) => {
@@ -170,7 +195,13 @@ describe('재고 관리 테스트', () => {
             },
           ],
           ['사이다', { normal: { price: 1000, quantity: 7 } }],
-          ['오렌지주스', { promotion: { price: 1800, quantity: 9, promotion: 'MD추천상품' } }],
+          [
+            '오렌지주스',
+            {
+              promotion: { price: 1800, quantity: 9, promotion: 'MD추천상품' },
+              normal: { price: 1800, quantity: 0 },
+            },
+          ],
         ],
       },
       {
@@ -184,7 +215,13 @@ describe('재고 관리 테스트', () => {
             },
           ],
           ['사이다', { normal: { price: 1000, quantity: 8 } }],
-          ['오렌지주스', { promotion: { price: 1800, quantity: 0, promotion: 'MD추천상품' } }],
+          [
+            '오렌지주스',
+            {
+              promotion: { price: 1800, quantity: 0, promotion: 'MD추천상품' },
+              normal: { price: 1800, quantity: 0 },
+            },
+          ],
         ],
       },
       {
@@ -198,7 +235,13 @@ describe('재고 관리 테스트', () => {
             },
           ],
           ['사이다', { normal: { price: 1000, quantity: 8 } }],
-          ['오렌지주스', { promotion: { price: 1800, quantity: 9, promotion: 'MD추천상품' } }],
+          [
+            '오렌지주스',
+            {
+              promotion: { price: 1800, quantity: 9, promotion: 'MD추천상품' },
+              normal: { price: 1800, quantity: 0 },
+            },
+          ],
         ],
       },
     ])('프로모션 중이 아닌 경우 일반 재고를 우선으로 차감한다.', ({ input, expected }) => {
