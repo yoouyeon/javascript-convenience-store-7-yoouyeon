@@ -53,6 +53,10 @@ class PromotionManager {
     return additionalResult;
   }
 
+  getPromoAvailability(promoName) {
+    return this.#checkPromotionAvailability(promoName).promotion?.isAvailable() || false;
+  }
+
   // ========================
   // 5. Private Methods
   // ========================
@@ -111,7 +115,7 @@ class PromotionManager {
       const buyMore = await retryAsync(() =>
         InputView.getBuyMore.bind(InputView)(productName, fullCount.free)
       );
-      if (buyMore) return promotion.getCount(count + fullCount.total, promoStock?.quantity || 0);
+      if (buyMore) return promotion.getCount(fullCount.total, promoStock?.quantity || 0);
     }
     return promotion.getCount(count, promoStock?.quantity || 0);
   }

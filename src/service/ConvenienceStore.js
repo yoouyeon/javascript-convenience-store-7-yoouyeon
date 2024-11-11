@@ -5,7 +5,7 @@ import PromotionManager from './PromotionManager.js';
 import csvUtils from '../utils/csvUtils.js';
 import OutputView from '../view/OutputView.js';
 import InputView from '../view/InputView.js';
-import retryAsyncWithLog from '../utils/retryAsyncWithLog.js';
+import retryAsync from '../utils/retryAsync.js';
 
 const PRODUCTS_FILE_PATH = 'public/products.md';
 const PROMOTIONS_FILE_PATH = 'public/promotions.md';
@@ -14,12 +14,19 @@ const PROMOTIONS_FILE_PATH = 'public/promotions.md';
 /** @typedef {import('../types.js').PromotionRawDataType} PromotionRawDataType */
 
 class ConvenienceStore {
+  // ========================
+  // 1. Member Variables
+  // ========================
   #inventoryManager;
 
   #promotionManager;
 
+  // ========================
+  // 2. Public Methods
+  // ========================
+
   /**
-   * 편의점 데이터를 초기화합니다.
+   * 편의점 재고 및 프로모션 데이터를 초기화합니다.
    */
   async init() {
     const productRawData = /** @type {ProductRawDataType} */ (
@@ -40,6 +47,10 @@ class ConvenienceStore {
     this.#processPurchase();
   }
 
+  // ========================
+  // 3. Private Methods
+  // ========================
+
   /**
    * 편의점 데이터가 초기화되었는지 확인합니다.
    * @throws {Error} 편의점 데이터가 설정되지 않았을 경우
@@ -56,9 +67,7 @@ class ConvenienceStore {
   async #processPurchase() {
     this.#showStartupInfo();
     await this.#purchaseProduct();
-    const additionalPurchase = await retryAsyncWithLog(
-      InputView.getAdditionalPurchase.bind(InputView)
-    );
+    const additionalPurchase = await retryAsync(InputView.getAdditionalPurchase.bind(InputView));
     if (additionalPurchase) {
       this.#processPurchase();
     }
@@ -76,8 +85,11 @@ class ConvenienceStore {
    * 상품 구매를 처리합니다.
    */
   async #purchaseProduct() {
-    // 1. 상품 구매 정보를 입력받는다.
-    const purchaseInfo = await retryAsyncWithLog(this.#inputPurchaseInfo.bind(this));
+    const purchaseInfo = await retryAsync(this.#inputPurchaseInfo.bind(this));
+    const promotionResult = await this.#applyPromotion(purchaseInfo);
+    // 차감하기
+    this.#decreaseStock(promotionResult);
+    return promotionResult;
   }
 
   /**
@@ -90,6 +102,46 @@ class ConvenienceStore {
       this.#inventoryManager.checkInventory(name, quantity);
     });
     return products;
+  }
+
+  /**
+   * 구매 정보에 프로모션을 적용합니다.
+   * @param {Array<[string, number]>} purchaseInfo - 구매 정보
+   * @returns {Promise<Array<{productName: string, quantity: import('../types.js').PromotionQuantityType}>>}
+   */
+  async #applyPromotion(purchaseInfo) {
+    const results = await Promise.all(
+      purchaseInfo.map(async ([productName, purchaseQuantity]) => {
+        const quantity = await this.#applyEachPromotion(productName, purchaseQuantity);
+        return { productName, quantity };
+      })
+    );
+    return results;
+  }
+
+  /**
+   * 개별 상품에 프로모션을 적용합니다.
+   */
+  async #applyEachPromotion(productName, count) {
+    const stock = this.#inventoryManager.checkInventory(productName, count);
+    const result = await this.#promotionManager.applyPromotion({
+      productName,
+      count,
+      promoStock: stock.promotion,
+    });
+    return result;
+  }
+
+  /**
+   * 상품 재고를 차감합니다.
+   * @param {Array<{productName: string, quantity: import('../types.js').PromotionQuantityType}>} promotionResult - 프로모션 적용 결과
+   */
+  #decreaseStock(promotionResult) {
+    promotionResult.forEach(({ productName, quantity }) => {
+      const promoName = this.#inventoryManager.getPromoName(productName);
+      const promoAvailability = this.#promotionManager.getPromoAvailability(promoName);
+      this.#inventoryManager.decreaseStock(productName, quantity.total, promoAvailability);
+    });
   }
 }
 

@@ -104,7 +104,63 @@ describe('재고 관리 테스트', () => {
   describe('재고 차감 테스트', () => {
     test.each([
       {
-        input: { productName: '사이다', quantity: { normal: 1 } },
+        input: { productName: '오렌지주스', quantity: 7 },
+        expected: [
+          [
+            '콜라',
+            {
+              normal: { price: 1000, quantity: 10 },
+              promotion: { price: 1000, quantity: 10, promotion: '탄산2+1' },
+            },
+          ],
+          ['사이다', { normal: { price: 1000, quantity: 8 } }],
+          ['오렌지주스', { promotion: { price: 1800, quantity: 2, promotion: 'MD추천상품' } }],
+        ],
+      },
+      {
+        input: { productName: '콜라', quantity: 11 },
+        expected: [
+          [
+            '콜라',
+            {
+              normal: { price: 1000, quantity: 9 },
+              promotion: { price: 1000, quantity: 0, promotion: '탄산2+1' },
+            },
+          ],
+          ['사이다', { normal: { price: 1000, quantity: 8 } }],
+          ['오렌지주스', { promotion: { price: 1800, quantity: 9, promotion: 'MD추천상품' } }],
+        ],
+      },
+      {
+        input: { productName: '사이다', quantity: 8 },
+        expected: [
+          [
+            '콜라',
+            {
+              normal: { price: 1000, quantity: 10 },
+              promotion: { price: 1000, quantity: 10, promotion: '탄산2+1' },
+            },
+          ],
+          ['사이다', { normal: { price: 1000, quantity: 0 } }],
+          ['오렌지주스', { promotion: { price: 1800, quantity: 9, promotion: 'MD추천상품' } }],
+        ],
+      },
+    ])('프로모션 중일때는 프로모션 재고를 우선으로 차감한다.', ({ input, expected }) => {
+      // given
+      const inventoryManager = new InventoryManager(PRODUCT_DATA);
+      const EXPECTED_STOCK_MAP = makeFakeStockMap(expected);
+      const { productName, quantity } = input;
+
+      // when
+      inventoryManager.decreaseStock(productName, quantity, true);
+
+      // then
+      expect(inventoryManager.currentInventory).toEqual(EXPECTED_STOCK_MAP);
+    });
+
+    test.each([
+      {
+        input: { productName: '사이다', quantity: 1 },
         expected: [
           [
             '콜라',
@@ -118,7 +174,7 @@ describe('재고 관리 테스트', () => {
         ],
       },
       {
-        input: { productName: '오렌지주스', quantity: { promotion: 9 } },
+        input: { productName: '오렌지주스', quantity: 9 },
         expected: [
           [
             '콜라',
@@ -132,7 +188,7 @@ describe('재고 관리 테스트', () => {
         ],
       },
       {
-        input: { productName: '콜라', quantity: { normal: 10, promotion: 1 } },
+        input: { productName: '콜라', quantity: 11 },
         expected: [
           [
             '콜라',
@@ -145,14 +201,14 @@ describe('재고 관리 테스트', () => {
           ['오렌지주스', { promotion: { price: 1800, quantity: 9, promotion: 'MD추천상품' } }],
         ],
       },
-    ])('차감된 재고는 바로 반영된다.', ({ input, expected }) => {
+    ])('프로모션 중이 아닌 경우 일반 재고를 우선으로 차감한다.', ({ input, expected }) => {
       // given
       const inventoryManager = new InventoryManager(PRODUCT_DATA);
       const EXPECTED_STOCK_MAP = makeFakeStockMap(expected);
       const { productName, quantity } = input;
 
       // when
-      inventoryManager.decreaseStock(productName, quantity);
+      inventoryManager.decreaseStock(productName, quantity, false);
 
       // then
       expect(inventoryManager.currentInventory).toEqual(EXPECTED_STOCK_MAP);

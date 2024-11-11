@@ -65,7 +65,7 @@ class Promotion {
    */
   getCount(promoCount, promoStock, nonPromoCount) {
     const { buy, get } = this.#quantity;
-    const calResult = Promotion.#calCount(promoCount, promoStock, buy, get);
+    const calResult = Promotion.#calFitCount(promoCount, promoStock, buy, get);
     const nonPromo = Promotion.#calNonPromoCount(promoCount, calResult.promo, calResult.free);
     return {
       ...calResult,
@@ -77,6 +77,18 @@ class Promotion {
   static #calCount(count, promoStock, buy, get) {
     let [promo, free, currCount, currStock] = [0, 0, count, promoStock];
     while (currCount >= buy && currStock - (buy + get) >= 0) {
+      promo += buy;
+      free += get;
+      currCount -= buy;
+      currStock -= buy + get;
+    }
+    return { promo, free };
+  }
+
+  // promo와 free의 합이 count를 넘으면 안된다.
+  static #calFitCount(count, promoStock, buy, get) {
+    let [promo, free, currCount, currStock] = [0, 0, count, promoStock];
+    while (currCount >= buy && currStock - (buy + get) >= 0 && promo + free < count - buy - get) {
       promo += buy;
       free += get;
       currCount -= buy;

@@ -52,17 +52,19 @@ class InventoryManager {
   /**
    * 상품 재고를 차감합니다.
    * @param {string} productName - 상품명
-   * @param {import('../types.js').RequestStockType} quantity - 차감할 상품 재고 양
+   * @param {number} quantity - 차감할 상품 재고 양
+   * @param {boolean} isPromotion - 프로모션 상품인지 여부
    */
-  decreaseStock(productName, quantity) {
+  decreaseStock(productName, quantity, isPromotion) {
     const productStock = this.#inventoryMap.get(productName);
-    this.#updateStock(productName, {
-      normal: InventoryManager.#decreaseStockQuantity(productStock?.normal, quantity.normal),
-      promotion: InventoryManager.#decreaseStockQuantity(
-        productStock?.promotion,
-        quantity.promotion
-      ),
-    });
+    if (!productStock) return;
+    const newStock = InventoryManager.#generateNewStock(productStock, quantity, isPromotion);
+    this.#updateStock(productName, newStock);
+  }
+
+  getPromoName(productName) {
+    const productStock = this.#inventoryMap.get(productName);
+    return productStock?.promotion?.promotion;
   }
 
   // ========================
@@ -118,6 +120,67 @@ class InventoryManager {
   }
 
   /**
+   * 새로운 재고 정보를 생성합니다.
+   * @param {import('../types.js').SingleProductStockType} productStock - 상품 재고 정보
+   * @param {number} quantity - 차감할 상품 재고 양
+   * @param {boolean} isPromotion - 프로모션 중인지 여부
+   */
+  static #generateNewStock(productStock, quantity, isPromotion) {
+    if (isPromotion) return InventoryManager.#generatePromoDescStock(productStock, quantity);
+    return InventoryManager.#generateNormalDescStock(productStock, quantity);
+  }
+
+  /**
+   * @param {import('../types.js').SingleProductStockType} productStock - 상품 재고 정보
+   * @param {number} quantity - 차감할 상품 재고 양
+   */
+  static #generatePromoDescStock(productStock, quantity) {
+    const { normal, promotion } = productStock;
+    const { promoDesc, normalDesc } = InventoryManager.#calPromoDesc(promotion?.quantity, quantity);
+    return {
+      normal: InventoryManager.#decreaseStockQuantity(normal, normalDesc),
+      promotion: InventoryManager.#decreaseStockQuantity(promotion, promoDesc),
+    };
+  }
+
+  /**
+   * @param {import('../types.js').SingleProductStockType} productStock - 상품 재고 정보
+   * @param {number} quantity - 차감할 상품 재고 양
+   */
+  static #generateNormalDescStock(productStock, quantity) {
+    const { normal, promotion } = productStock;
+    const { normalDesc, promoDesc } = InventoryManager.#calNormalDesc(normal?.quantity, quantity);
+    return {
+      normal: InventoryManager.#decreaseStockQuantity(normal, normalDesc),
+      promotion: InventoryManager.#decreaseStockQuantity(promotion, promoDesc),
+    };
+  }
+
+  /**
+   * 감소시킬 재고 정보를 계산합니다. (프로모션 중일 때)
+   * @param {number | undefined} promoCount - 프로모션 재고 수량
+   * @param {number} quantity - 차감할 상품 재고 양
+   */
+  static #calPromoDesc(promoCount, quantity) {
+    return {
+      promoDesc: Math.min(promoCount || 0, quantity),
+      normalDesc: Math.max(0, quantity - Math.min(promoCount || 0, quantity)),
+    };
+  }
+
+  /**
+   * 개수를 줄인 재고 정보를 반환합니다. (프로모션 중이 아닐 때)
+   * @param {number | undefined} normalCount - 일반 재고 수량
+   * @param {number} quantity - 차감할 상품 재고 양
+   */
+  static #calNormalDesc(normalCount, quantity) {
+    return {
+      normalDesc: Math.min(normalCount || 0, quantity),
+      promoDesc: Math.max(0, quantity - Math.min(normalCount || 0, quantity)),
+    };
+  }
+
+  /**
    * 개수를 줄인 재고 정보를 반환합니다.
    * @param {import('../types.js').ProductStockInfoType | undefined} stockInfo - 개수를 줄일 재고 정보
    * @param {number} quantity - 줄일 개수
@@ -136,7 +199,6 @@ class InventoryManager {
    * @param {string} productName - 상품명
    * @param {import('../types.js').SingleProductStockType} productStock - 갱신할 상품 재고 정보
    */
-
   #updateStock(productName, productStock) {
     const { normal, promotion } = productStock;
     const newStock = {
