@@ -50,25 +50,52 @@ describe('프로모션 테스트', () => {
     };
 
     test.each([
-      { quantity: 1, expected: { buy: 0, get: 0, nonPromo: 1, total: 1 } },
-      { quantity: 2, expected: { buy: 0, get: 0, nonPromo: 2, total: 2 } },
-      { quantity: 3, expected: { buy: 3, get: 1, nonPromo: 0, total: 4 } },
-      { quantity: 4, expected: { buy: 3, get: 1, nonPromo: 0, total: 4 } },
-      { quantity: 5, expected: { buy: 3, get: 1, nonPromo: 1, total: 5 } },
-      { quantity: 6, expected: { buy: 6, get: 2, nonPromo: 0, total: 8 } },
-    ])(
-      '프로모션이 { buy: 3, get: 1 } 일 때, $quantity개 구매할 경우, 최대 프로모션 적용 수량은 $expected 이다.',
-      ({ quantity, expected }) => {
-        // given
-        const promotion = new Promotion(PROMOTION_RAW_DATA);
+      {
+        quantity: 1,
+        promotionStock: 4,
+        expected: { promo: 0, free: 0, nonPromo: 1, total: 1 },
+      },
+      {
+        quantity: 2,
+        promotionStock: 4,
+        expected: { promo: 0, free: 0, nonPromo: 2, total: 2 },
+      },
+      {
+        quantity: 3,
+        promotionStock: 4,
+        expected: { promo: 3, free: 1, nonPromo: 0, total: 4 },
+      },
+      {
+        quantity: 4,
+        promotionStock: 4,
+        expected: { promo: 3, free: 1, nonPromo: 0, total: 4 },
+      },
+      {
+        quantity: 5,
+        promotionStock: 4,
+        expected: { promo: 3, free: 1, nonPromo: 1, total: 5 },
+      },
+      {
+        quantity: 6,
+        promotionStock: 4,
+        expected: { promo: 3, free: 1, nonPromo: 2, total: 6 },
+      },
+      {
+        quantity: 6,
+        promotionStock: 10,
+        expected: { promo: 6, free: 2, nonPromo: 0, total: 8 },
+      },
+    ])('최대 프로모션 적용 수량을 구한다.', (data) => {
+      // given
+      const { quantity, expected, promotionStock } = data;
+      const promotion = new Promotion(PROMOTION_RAW_DATA);
 
-        // when
-        const fullQuantity = promotion.getFullQuantity(quantity);
+      // when
+      const fullQuantity = promotion.getFullQuantity(quantity, promotionStock);
 
-        // then
-        expect(fullQuantity).toEqual(expected);
-      }
-    );
+      // then
+      expect(fullQuantity).toEqual(expected);
+    });
 
     test.each([
       { quantity: 1, expected: { buy: 0, get: 0, nonPromo: 1, total: 1 } },
