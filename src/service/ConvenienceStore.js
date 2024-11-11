@@ -9,6 +9,8 @@ import retryAsync from '../utils/retryAsync.js';
 
 const PRODUCTS_FILE_PATH = 'public/products.md';
 const PROMOTIONS_FILE_PATH = 'public/promotions.md';
+const MEMBERSHIP_DISCOUNT_RATE = 0.3;
+const MAX_DISCOUNT = 8000;
 
 /** @typedef {import('../types.js').ProductRawDataType} ProductRawDataType */
 /** @typedef {import('../types.js').PromotionRawDataType} PromotionRawDataType */
@@ -87,8 +89,12 @@ class ConvenienceStore {
   async #purchaseProduct() {
     const purchaseInfo = await retryAsync(this.#inputPurchaseInfo.bind(this));
     const promotionResult = await this.#applyPromotion(purchaseInfo);
-    // 차감하기
     this.#decreaseStock(promotionResult);
+    // 멤버십 할인 적용
+    const membershipDiscount = await retryAsync(() =>
+      this.#applyMebmershipDiscount.bind(this)(promotionResult)
+    );
+    this.#printReceipt(promotionResult, membershipDiscount);
     return promotionResult;
   }
 
@@ -142,6 +148,58 @@ class ConvenienceStore {
       const promoAvailability = this.#promotionManager.getPromoAvailability(promoName);
       this.#inventoryManager.decreaseStock(productName, quantity.total, promoAvailability);
     });
+  }
+
+  /**
+   * 멤버십 할인을 적용합니다.
+   * @param {Array<{productName: string, quantity: import('../types.js').PromotionQuantityType}>} promotionResult - 프로모션 적용 결과
+   * @returns {Promise<number>} 멤버십 할인 금액
+   */
+  async #applyMebmershipDiscount(promotionResult) {
+    const discount = await InputView.getMembershipDiscount();
+    if (!discount) return 0;
+    const totalAmount = this.#calculateTotalNonpromoPrice(promotionResult);
+    const membershipDiscount = Math.floor(totalAmount * MEMBERSHIP_DISCOUNT_RATE);
+    if (membershipDiscount > MAX_DISCOUNT) return MAX_DISCOUNT;
+    return membershipDiscount;
+  }
+
+  /**
+   * 멤버십 할인을 적용할 수 있는 총 가격을 계산합니다.
+   */
+  #calculateTotalNonpromoPrice(promotionResult) {
+    return promotionResult.reduce((acc, { productName, quantity }) => {
+      const promotion = this.#promotionManager.getPromoAvailability(
+        this.#inventoryManager.getPromoName(productName)
+      );
+      if (!promotion) return acc + this.#inventoryManager.getPrice(productName) * quantity.total;
+      return acc;
+    }, 0);
+  }
+
+  /**
+   * 영수증을 출력합니다.
+   * @param {Array<{productName: string, quantity: import('../types.js').PromotionQuantityType}>} promotionResult - 프로모션 적용 결과
+   * @param {number} membershipDiscount - 멤버십 할인 금액
+   */
+  #printReceipt(promotionResult, membershipDiscount) {
+    // 총 구매 내역 출력
+    this.#printPurchaseList(promotionResult);
+    // 증정품 출력
+    // 금액 계산해서 출력
+  }
+
+  /**
+   * 구매 목록을 출력합니다.
+   * @param {Array<{productName: string, quantity: import('../types.js').PromotionQuantityType}>} promotionResult - 프로모션 적용 결과
+   */
+  #printPurchaseList(promotionResult) {
+    OutputView.showPurchasedList(
+      promotionResult.map(({ productName, quantity }) => {
+        const price = this.#inventoryManager.getPrice(productName) * quantity.total;
+        return { productName, count: quantity.total, price };
+      })
+    );
   }
 }
 

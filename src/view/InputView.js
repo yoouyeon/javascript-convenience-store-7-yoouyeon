@@ -12,6 +12,7 @@ const PURCHASE_INPUT_MESSAGE = Object.freeze({
     `현재 ${productName} ${exceedQuantity}개는 프로모션 할인이 적용되지 않습니다. 그래도 구매하시겠습니까? (Y/N)\n`,
   promotionInfo: (productName, freeQuantity) =>
     `현재 ${productName}은(는) ${freeQuantity}개를 무료로 더 받을 수 있습니다. 추가하시겠습니까? (Y/N)\n`,
+  membershipDiscount: '멤버십 할인을 받으시겠습니까? (Y/N)\n',
 });
 
 // TODO : 메소드명 다시 고민해보기
@@ -60,6 +61,14 @@ const InputView = {
     const input = await Console.readLineAsync(
       PURCHASE_INPUT_MESSAGE.promotionInfo(productName, freeQuantity)
     );
+    const result = inputParser.yesOrNo(input);
+    OutputView.printNewLine();
+    return result;
+  },
+
+  /** 멤버십 할인 적용 여부를 입력받습니다. */
+  async getMembershipDiscount() {
+    const input = await Console.readLineAsync(PURCHASE_INPUT_MESSAGE.membershipDiscount);
     const result = inputParser.yesOrNo(input);
     OutputView.printNewLine();
     return result;

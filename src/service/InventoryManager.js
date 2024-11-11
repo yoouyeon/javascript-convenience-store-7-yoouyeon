@@ -28,6 +28,16 @@ class InventoryManager {
     return this.#inventoryMap;
   }
 
+  getPromoName(productName) {
+    const productStock = this.#inventoryMap.get(productName);
+    return productStock?.promotion?.promotion;
+  }
+
+  getPrice(productName) {
+    const productStock = this.#inventoryMap.get(productName);
+    return productStock?.normal?.price || productStock?.promotion?.price || 0;
+  }
+
   // ========================
   // 4. Public Methods
   // ========================
@@ -60,11 +70,6 @@ class InventoryManager {
     if (!productStock) return;
     const newStock = InventoryManager.#generateNewStock(productStock, quantity, isPromotion);
     this.#updateStock(productName, newStock);
-  }
-
-  getPromoName(productName) {
-    const productStock = this.#inventoryMap.get(productName);
-    return productStock?.promotion?.promotion;
   }
 
   // ========================
