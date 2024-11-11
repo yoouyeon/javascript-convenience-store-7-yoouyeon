@@ -1,12 +1,12 @@
 import { Console } from '@woowacourse/mission-utils';
 
-const retryAsyncWithLog = async (fn) => {
+const retryAsync = async (fn) => {
   try {
     return await fn();
   } catch (error) {
     Console.print(error.message);
-    return retryAsyncWithLog(fn);
+    return retryAsync(fn);
   }
 };
 
-export default retryAsyncWithLog;
+export default retryAsync;
