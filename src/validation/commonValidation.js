@@ -6,12 +6,12 @@ const commonValidation = Object.freeze({
   RULE_SET: Object.freeze({
     isEmpty: Object.freeze({
       isInvalid: (value) => value.trim() === '',
-      errorMessage: '빈 값은 입력할 수 없습니다.',
+      errorMessage: '잘못된 입력입니다. 다시 입력해 주세요.',
     }),
 
     isYesOrNo: Object.freeze({
       isInvalid: (value) => !['Y', 'N'].includes(value),
-      errorMessage: 'Y 또는 N을 입력해주세요.',
+      errorMessage: '잘못된 입력입니다. 다시 입력해 주세요.',
     }),
   }),
 

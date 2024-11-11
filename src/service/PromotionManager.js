@@ -97,12 +97,19 @@ class PromotionManager {
   static async #processBuyExceed(req) {
     const { productName, count, fullCount, promoStock, promotion } = req;
     const exceed = fullCount.nonPromo;
-    if (fullCount.total !== count || exceed === 0) return undefined;
+    if (!PromotionManager.#checkExceed(promotion, count, fullCount, exceed)) return undefined;
     const buyExceed = await retryAsync(() =>
       InputView.getBuyExceed.bind(InputView)(productName, exceed)
     );
     if (buyExceed) return promotion.getCount(count - exceed, promoStock?.quantity || 0, exceed);
     return promotion.getCount(count - exceed, promoStock?.quantity || 0, 0);
+  }
+
+  static #checkExceed(promotion, count, fullCount, exceed) {
+    if (fullCount.total !== count || exceed === 0) return false;
+    const { buy } = promotion.quantity;
+    if (count < buy) return false;
+    return true;
   }
 
   /**

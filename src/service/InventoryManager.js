@@ -50,12 +50,11 @@ class InventoryManager {
    */
   checkInventory(productName, quantity) {
     const productStock = this.#inventoryMap.get(productName);
-    if (!productStock)
-      throw new CustomError(`"${productName}"은 존재하지 않는 상품입니다. 다시 입력해주세요.`);
+    if (!productStock) throw new CustomError(`존재하지 않는 상품입니다. 다시 입력해 주세요.`);
     const { normal, promotion } = productStock;
     const totalQuantity = (normal?.quantity || 0) + (promotion?.quantity || 0);
     if (totalQuantity < quantity)
-      throw new CustomError(`"${productName}"의 재고가 부족합니다. 다시 입력해주세요.`);
+      throw new CustomError(`재고 수량을 초과하여 구매할 수 없습니다. 다시 입력해 주세요.`);
     return productStock;
   }
 
