@@ -183,10 +183,9 @@ class ConvenienceStore {
    * @param {number} membershipDiscount - 멤버십 할인 금액
    */
   #printReceipt(promotionResult, membershipDiscount) {
-    // 총 구매 내역 출력
     this.#printPurchaseList(promotionResult);
-    // 증정품 출력
-    // 금액 계산해서 출력
+    ConvenienceStore.#printGiftList(promotionResult);
+    this.#printTotalPrice(promotionResult, membershipDiscount);
   }
 
   /**
@@ -199,6 +198,46 @@ class ConvenienceStore {
         const price = this.#inventoryManager.getPrice(productName) * quantity.total;
         return { productName, count: quantity.total, price };
       })
+    );
+  }
+
+  /**
+   * 증정 목록을 출력합니다.
+   * @param {Array<{productName: string, quantity: import('../types.js').PromotionQuantityType}>} promotionResult - 프로모션 적용 결과
+   */
+  static #printGiftList(promotionResult) {
+    OutputView.showFreeList(
+      promotionResult.map(({ productName, quantity }) => ({ productName, count: quantity.free }))
+    );
+  }
+
+  /**
+   * 총 비용을 출력합니다.
+   * @param {Array<{productName: string, quantity: import('../types.js').PromotionQuantityType}>} promotionResult - 프로모션 적용 결과
+   * @param {number} membershipDiscount - 멤버십 할인 금액
+   */
+  #printTotalPrice(promotionResult, membershipDiscount) {
+    const total = this.#calculateTotalCount(promotionResult);
+    const promoDiscount = this.#calculatePromoDiscount(promotionResult);
+    const final = total.price - promoDiscount - membershipDiscount;
+    OutputView.showTotalPrint(total, promoDiscount, membershipDiscount, final);
+  }
+
+  #calculateTotalCount(promotionResult) {
+    return promotionResult.reduce(
+      (acc, { productName, quantity }) => ({
+        count: acc.count + quantity.total,
+        price: acc.price + this.#inventoryManager.getPrice(productName) * quantity.total,
+      }),
+      { count: 0, price: 0 }
+    );
+  }
+
+  #calculatePromoDiscount(promotionResult) {
+    return promotionResult.reduce(
+      (acc, { productName, quantity }) =>
+        acc + this.#inventoryManager.getPrice(productName) * quantity.free,
+      0
     );
   }
 }
