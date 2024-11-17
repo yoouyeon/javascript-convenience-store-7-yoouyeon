@@ -46,7 +46,8 @@ class ConvenienceStore {
    */
   async run() {
     this.#checkIsInitialized();
-    this.#processPurchase();
+    // NOTE : 과제 제출 코드에서는 await이 누락되어 ApplicationTest.js에서 4개 중 3개의 테스트가 실패했습니다.
+    await this.#processPurchase();
   }
 
   // ========================
