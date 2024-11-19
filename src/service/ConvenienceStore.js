@@ -70,7 +70,7 @@ class ConvenienceStore {
   async #processPurchase() {
     this.#showStartupInfo();
     await this.#purchaseProduct();
-    const additionalPurchase = await retryAsync(InputView.getAdditionalPurchase.bind(InputView));
+    const additionalPurchase = await retryAsync(InputView.readMorePurchase.bind(InputView));
     if (additionalPurchase) {
       this.#processPurchase();
     }
@@ -157,7 +157,7 @@ class ConvenienceStore {
    * @returns {Promise<number>} 멤버십 할인 금액
    */
   async #applyMebmershipDiscount(promotionResult) {
-    const discount = await InputView.getMembershipDiscount();
+    const discount = await InputView.readMemberConfirm();
     if (!discount) return 0;
     const totalAmount = this.#calculateTotalNonpromoPrice(promotionResult);
     const membershipDiscount = Math.floor(totalAmount * MEMBERSHIP_DISCOUNT_RATE);

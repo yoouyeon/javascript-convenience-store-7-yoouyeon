@@ -15,8 +15,6 @@ const PURCHASE_INPUT_MESSAGE = Object.freeze({
   membershipDiscount: '멤버십 할인을 받으시겠습니까? (Y/N)\n',
 });
 
-// TODO : 메소드명 다시 고민해보기
-
 const InputView = {
   /** 구매할 상품과 수량을 입력받습니다. */
   async readProducts() {
@@ -27,7 +25,7 @@ const InputView = {
   },
 
   /** 구매가 완료된 후 추가 구매 여부를 입력받습니다. */
-  async getAdditionalPurchase() {
+  async readMorePurchase() {
     const additionalPurchase = await Console.readLineAsync(
       PURCHASE_INPUT_MESSAGE.additionalPurchase
     );
@@ -42,7 +40,7 @@ const InputView = {
    * @param {number} exceedQuantity - 프로모션 할인 수량 초과 수량
    * @returns {Promise<boolean>} 추가 구매 여부
    */
-  async getBuyExceed(productName, exceedQuantity) {
+  async readExceedConfirm(productName, exceedQuantity) {
     const input = await Console.readLineAsync(
       PURCHASE_INPUT_MESSAGE.exceedPromotionQuantity(productName, exceedQuantity)
     );
@@ -57,7 +55,7 @@ const InputView = {
    * @param {number} freeQuantity - 추가 구매 혜택 수량
    * @returns {Promise<boolean>} 추가 구매 여부
    */
-  async getBuyMore(productName, freeQuantity) {
+  async readPromoConfirm(productName, freeQuantity) {
     const input = await Console.readLineAsync(
       PURCHASE_INPUT_MESSAGE.promotionInfo(productName, freeQuantity)
     );
@@ -67,7 +65,7 @@ const InputView = {
   },
 
   /** 멤버십 할인 적용 여부를 입력받습니다. */
-  async getMembershipDiscount() {
+  async readMemberConfirm() {
     const input = await Console.readLineAsync(PURCHASE_INPUT_MESSAGE.membershipDiscount);
     const result = inputParser.yesOrNo(input);
     OutputView.printNewLine();
