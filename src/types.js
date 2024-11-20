@@ -13,18 +13,8 @@
 /**
  * @typedef {Object} ProductStockInfoType - 재고 정보 (일반 재고 또는 프로모션 재고)
  * @property {number} price - 가격
- * @property {number} quantity - 수량
+ * @property {number} quantity - 재고 수량
  * @property {string=} promotion - 프로모션 정보
- */
-
-/**
- * @typedef {Object} SingleProductStockType - 개별 상품 재고 정보
- * @property {ProductStockInfoType=} normal - 일반 상품 정보
- * @property {ProductStockInfoType=} promotion - 프로모션 상품 정보
- */
-
-/**
- * @typedef {Map<string, SingleProductStockType>} ProductStockType - 상품명을 key로 가지는 전체 상품 재고 정보
  */
 
 /**

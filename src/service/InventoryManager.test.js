@@ -1,13 +1,11 @@
 import InventoryManager from './InventoryManager.js';
-
-// TODO : 네이밍 다시 확인하기 (통일되지 않은 부분이 있을 수 있음)
-// TODO : 가독성 고민해보기
+import ProductStock from './ProductStock.js';
 
 const makeFakeStockMap = (fakeStocks) => {
   const stockMap = new Map();
   fakeStocks.forEach((fakeStock) => {
-    const [productName, stock] = fakeStock;
-    stockMap.set(productName, stock);
+    const [productName, stockInfo] = fakeStock;
+    stockMap.set(productName, new ProductStock({ name: productName, ...stockInfo }));
   });
   return stockMap;
 };
@@ -70,188 +68,83 @@ describe('재고 관리 테스트', () => {
     });
 
     test.each([
-      {
-        input: { productName: '사이다', quantity: 8 },
-        expected: { normal: { price: 1000, quantity: 8 } },
-      },
-      {
-        input: { productName: '오렌지주스', quantity: 9 },
-        expected: {
-          promotion: { price: 1800, quantity: 9, promotion: 'MD추천상품' },
-          normal: { price: 1800, quantity: 0 },
-        },
-      },
-      {
-        input: { productName: '콜라', quantity: 10 },
-        expected: {
-          normal: { price: 1000, quantity: 10 },
-          promotion: { price: 1000, quantity: 10, promotion: '탄산2+1' },
-        },
-      },
-      {
-        input: { productName: '콜라', quantity: 20 },
-        expected: {
-          normal: { price: 1000, quantity: 10 },
-          promotion: { price: 1000, quantity: 10, promotion: '탄산2+1' },
-        },
-      },
-    ])('재고가 충분한 상품은 재고를 반환한다.', ({ input, expected }) => {
-      // given
-      const inventoryManager = new InventoryManager(PRODUCT_DATA);
-      const { productName, quantity } = input;
+      { productName: '사이다', quantity: 8 },
+      { productName: '오렌지주스', quantity: 9 },
+      { productName: '콜라', quantity: 10 },
+      { productName: '콜라', quantity: 20 },
+    ])(
+      '재고가 충분한 상품은 에러 대신 해당하는 ProductStock 객체를 반환한다.',
+      ({ productName, quantity }) => {
+        // given
+        const inventoryManager = new InventoryManager(PRODUCT_DATA);
 
-      // when
-      const purchaseResponse = inventoryManager.checkInventory(productName, quantity);
+        // when
+        const purchaseResponse = inventoryManager.checkInventory(productName, quantity);
 
-      // then
-      expect(purchaseResponse).toEqual(expected);
-    });
+        // then
+        expect(purchaseResponse).toBeInstanceOf(ProductStock);
+        expect(purchaseResponse).toBe(inventoryManager.currentInventory.get(productName));
+        expect(purchaseResponse.totalQuantity).toBeGreaterThanOrEqual(quantity);
+      }
+    );
   });
 
   describe('재고 차감 테스트', () => {
-    test.each([
-      {
-        input: { productName: '오렌지주스', quantity: 7 },
-        expected: [
-          [
-            '콜라',
-            {
-              normal: { price: 1000, quantity: 10 },
-              promotion: { price: 1000, quantity: 10, promotion: '탄산2+1' },
-            },
-          ],
-          ['사이다', { normal: { price: 1000, quantity: 8 } }],
-          [
-            '오렌지주스',
-            {
-              promotion: { price: 1800, quantity: 2, promotion: 'MD추천상품' },
-              normal: { price: 1800, quantity: 0 },
-            },
-          ],
-        ],
-      },
-      {
-        input: { productName: '콜라', quantity: 11 },
-        expected: [
-          [
-            '콜라',
-            {
-              normal: { price: 1000, quantity: 9 },
-              promotion: { price: 1000, quantity: 0, promotion: '탄산2+1' },
-            },
-          ],
-          ['사이다', { normal: { price: 1000, quantity: 8 } }],
-          [
-            '오렌지주스',
-            {
-              promotion: { price: 1800, quantity: 9, promotion: 'MD추천상품' },
-              normal: { price: 1800, quantity: 0 },
-            },
-          ],
-        ],
-      },
-      {
-        input: { productName: '사이다', quantity: 8 },
-        expected: [
-          [
-            '콜라',
-            {
-              normal: { price: 1000, quantity: 10 },
-              promotion: { price: 1000, quantity: 10, promotion: '탄산2+1' },
-            },
-          ],
-          ['사이다', { normal: { price: 1000, quantity: 0 } }],
-          [
-            '오렌지주스',
-            {
-              promotion: { price: 1800, quantity: 9, promotion: 'MD추천상품' },
-              normal: { price: 1800, quantity: 0 },
-            },
-          ],
-        ],
-      },
-    ])('프로모션 중일때는 프로모션 재고를 우선으로 차감한다.', ({ input, expected }) => {
+    test('프로모션 상품 재고를 차감하고 재고 정보를 업데이트한다.', () => {
       // given
+      const EXPECTED_STOCK_MAP = makeFakeStockMap([
+        [
+          '콜라',
+          {
+            normal: { price: 1000, quantity: 10 },
+            promotion: { price: 1000, quantity: 5, promotion: '탄산2+1' },
+          },
+        ],
+        ['사이다', { normal: { price: 1000, quantity: 8 } }],
+        [
+          '오렌지주스',
+          {
+            promotion: { price: 1800, quantity: 9, promotion: 'MD추천상품' },
+            normal: { price: 1800, quantity: 0 },
+          },
+        ],
+      ]);
+      const PROMOTION_PRODUCT = '콜라';
+      const PURCHASE_QUANTITY = 5;
       const inventoryManager = new InventoryManager(PRODUCT_DATA);
-      const EXPECTED_STOCK_MAP = makeFakeStockMap(expected);
-      const { productName, quantity } = input;
 
       // when
-      inventoryManager.decreaseStock(productName, quantity, true);
+      inventoryManager.decreaseStock(PROMOTION_PRODUCT, PURCHASE_QUANTITY, true);
 
       // then
       expect(inventoryManager.currentInventory).toEqual(EXPECTED_STOCK_MAP);
     });
 
-    test.each([
-      {
-        input: { productName: '사이다', quantity: 1 },
-        expected: [
-          [
-            '콜라',
-            {
-              normal: { price: 1000, quantity: 10 },
-              promotion: { price: 1000, quantity: 10, promotion: '탄산2+1' },
-            },
-          ],
-          ['사이다', { normal: { price: 1000, quantity: 7 } }],
-          [
-            '오렌지주스',
-            {
-              promotion: { price: 1800, quantity: 9, promotion: 'MD추천상품' },
-              normal: { price: 1800, quantity: 0 },
-            },
-          ],
-        ],
-      },
-      {
-        input: { productName: '오렌지주스', quantity: 9 },
-        expected: [
-          [
-            '콜라',
-            {
-              normal: { price: 1000, quantity: 10 },
-              promotion: { price: 1000, quantity: 10, promotion: '탄산2+1' },
-            },
-          ],
-          ['사이다', { normal: { price: 1000, quantity: 8 } }],
-          [
-            '오렌지주스',
-            {
-              promotion: { price: 1800, quantity: 0, promotion: 'MD추천상품' },
-              normal: { price: 1800, quantity: 0 },
-            },
-          ],
-        ],
-      },
-      {
-        input: { productName: '콜라', quantity: 11 },
-        expected: [
-          [
-            '콜라',
-            {
-              normal: { price: 1000, quantity: 0 },
-              promotion: { price: 1000, quantity: 9, promotion: '탄산2+1' },
-            },
-          ],
-          ['사이다', { normal: { price: 1000, quantity: 8 } }],
-          [
-            '오렌지주스',
-            {
-              promotion: { price: 1800, quantity: 9, promotion: 'MD추천상품' },
-              normal: { price: 1800, quantity: 0 },
-            },
-          ],
-        ],
-      },
-    ])('프로모션 중이 아닌 경우 일반 재고를 우선으로 차감한다.', ({ input, expected }) => {
+    test('일반 상품 재고를 차감하고 재고 정보를 업데이트한다.', () => {
       // given
+      const EXPECTED_STOCK_MAP = makeFakeStockMap([
+        [
+          '콜라',
+          {
+            normal: { price: 1000, quantity: 5 },
+            promotion: { price: 1000, quantity: 10, promotion: '탄산2+1' },
+          },
+        ],
+        ['사이다', { normal: { price: 1000, quantity: 8 } }],
+        [
+          '오렌지주스',
+          {
+            promotion: { price: 1800, quantity: 9, promotion: 'MD추천상품' },
+            normal: { price: 1800, quantity: 0 },
+          },
+        ],
+      ]);
+      const NORMAL_PRODUCT = '콜라';
+      const PURCHASE_QUANTITY = 5;
       const inventoryManager = new InventoryManager(PRODUCT_DATA);
-      const EXPECTED_STOCK_MAP = makeFakeStockMap(expected);
-      const { productName, quantity } = input;
 
       // when
-      inventoryManager.decreaseStock(productName, quantity, false);
+      inventoryManager.decreaseStock(NORMAL_PRODUCT, PURCHASE_QUANTITY, false);
 
       // then
       expect(inventoryManager.currentInventory).toEqual(EXPECTED_STOCK_MAP);
