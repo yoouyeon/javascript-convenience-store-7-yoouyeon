@@ -1,5 +1,7 @@
 // @ts-check
 import dateUtils from '../utils/dateUtils.js';
+import validateUtils from '../utils/validateUtils.js';
+import CustomError from '../utils/CustomError.js';
 
 class Promotion {
   #name;
@@ -13,10 +15,10 @@ class Promotion {
    * @param {import('../types.js').SinglePromotionRawDataType} singlePromotionRawData - 파일에서 읽어온 프로모션 데이터
    */
   constructor(singlePromotionRawData) {
+    Promotion.#validateData(singlePromotionRawData);
     // promotions.md의 header 형식을 그대로 유지하기 위해서 camelcase를 사용하지 않음
     // eslint-disable-next-line camelcase
     const { name, buy, get, start_date, end_date } = singlePromotionRawData;
-    // TODO : 유효성 검사를 여기서 해야 할듯?
     this.#name = name;
     this.#quantity = { buy: Number(buy), get: Number(get) };
     this.#date = {
@@ -102,6 +104,22 @@ class Promotion {
       return count - promo - free;
     }
     return 0;
+  }
+
+  /**
+   * 프로모션 정보가 유효한지 검사합니다.
+   *@param {import('../types.js').SinglePromotionRawDataType} singlePromotionRawData - 파일에서 읽어온 프로모션 데이터
+   */
+  static #validateData(singlePromotionRawData) {
+    const { isValidString, isValidNumber, isValidDate } = validateUtils;
+    // promotions.md의 header 형식을 그대로 유지하기 위해서 camelcase를 사용하지 않음
+    // eslint-disable-next-line camelcase
+    const { name, buy, get, start_date, end_date } = singlePromotionRawData;
+    if (!isValidString(name)) throw new CustomError('프로모션 이름이 올바르지 않습니다.');
+    if (!isValidNumber(buy) || !isValidNumber(get))
+      throw new CustomError('프로모션 수량이 숫자가 아닙니다.');
+    if (!isValidDate(start_date) || !isValidDate(end_date))
+      throw new CustomError('프로모션 데이터의 날짜 형식이 올바르지 않습니다.');
   }
 }
 

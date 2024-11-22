@@ -1,3 +1,6 @@
+import validateUtils from '../utils/validateUtils.js';
+import CustomError from '../utils/CustomError.js';
+
 class ProductStock {
   /** @type {import('../types.js').ProductStockInfoType} */
   #normal;
@@ -38,6 +41,7 @@ class ProductStock {
    * @param {import('../types.js').SingleProductRawDataType} stockData - 상품명, 가격, 수량, 프로모션 정보
    */
   setStockInfo(stockData) {
+    ProductStock.#validateData(stockData);
     const { price, quantity, promotion } = stockData;
     if (!promotion || promotion === 'null')
       this.#normal = { price: Number(price), quantity: Number(quantity) };
@@ -87,6 +91,18 @@ class ProductStock {
     }
     this.#normal.quantity -= primary;
     this.#promotion.quantity -= extra;
+  }
+
+  /**
+   * 상품 재고 데이터의 유효성을 확인합니다.
+   * @param {import('../types.js').SingleProductRawDataType} stockData - 상품명, 가격, 수량, 프로모션 정보
+   */
+  static #validateData(stockData) {
+    const { isValidNumber, isValidString } = validateUtils;
+    const { price, quantity, promotion } = stockData;
+    if (!isValidNumber(price) || !isValidNumber(quantity))
+      throw new CustomError('가격과 수량 정보가 숫자가 아닙니다.');
+    if (!isValidString(promotion)) throw new CustomError('프로모션 이름이 유효하지 않습니다.');
   }
 }
 
