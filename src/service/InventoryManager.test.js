@@ -5,7 +5,10 @@ const makeFakeStockMap = (fakeStocks) => {
   const stockMap = new Map();
   fakeStocks.forEach((fakeStock) => {
     const [productName, stockInfo] = fakeStock;
-    stockMap.set(productName, new ProductStock({ name: productName, ...stockInfo }));
+    const { normal, promotion } = stockInfo;
+    const productStock = new ProductStock({ name: productName, ...normal });
+    if (promotion) productStock.setStockInfo({ name: productName, ...promotion });
+    stockMap.set(productName, productStock);
   });
   return stockMap;
 };
@@ -24,16 +27,16 @@ describe('재고 관리 테스트', () => {
       [
         '콜라',
         {
-          normal: { price: 1000, quantity: 10 },
+          normal: { price: 1000, quantity: 10, promotion: 'null' },
           promotion: { price: 1000, quantity: 10, promotion: '탄산2+1' },
         },
       ],
-      ['사이다', { normal: { price: 1000, quantity: 8 } }],
+      ['사이다', { normal: { price: 1000, quantity: 8, promotion: 'null' } }],
       [
         '오렌지주스',
         {
           promotion: { price: 1800, quantity: 9, promotion: 'MD추천상품' },
-          normal: { price: 1800, quantity: 0 },
+          normal: { price: 1800, quantity: 1, promotion: 'null' },
         },
       ],
     ]);
@@ -96,16 +99,16 @@ describe('재고 관리 테스트', () => {
         [
           '콜라',
           {
-            normal: { price: 1000, quantity: 10 },
+            normal: { price: 1000, quantity: 10, promotion: 'null' },
             promotion: { price: 1000, quantity: 5, promotion: '탄산2+1' },
           },
         ],
-        ['사이다', { normal: { price: 1000, quantity: 8 } }],
+        ['사이다', { normal: { price: 1000, quantity: 8, promotion: 'null' } }],
         [
           '오렌지주스',
           {
             promotion: { price: 1800, quantity: 9, promotion: 'MD추천상품' },
-            normal: { price: 1800, quantity: 0 },
+            normal: { price: 1800, quantity: 1, promotion: 'null' },
           },
         ],
       ]);
@@ -126,16 +129,16 @@ describe('재고 관리 테스트', () => {
         [
           '콜라',
           {
-            normal: { price: 1000, quantity: 5 },
+            normal: { price: 1000, quantity: 5, promotion: 'null' },
             promotion: { price: 1000, quantity: 10, promotion: '탄산2+1' },
           },
         ],
-        ['사이다', { normal: { price: 1000, quantity: 8 } }],
+        ['사이다', { normal: { price: 1000, quantity: 8, promotion: 'null' } }],
         [
           '오렌지주스',
           {
             promotion: { price: 1800, quantity: 9, promotion: 'MD추천상품' },
-            normal: { price: 1800, quantity: 0 },
+            normal: { price: 1800, quantity: 1, promotion: 'null' },
           },
         ],
       ]);

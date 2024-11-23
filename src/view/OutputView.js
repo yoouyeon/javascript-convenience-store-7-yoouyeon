@@ -6,6 +6,12 @@ const RECEIPT_HEADER_MESSAGE = '==============W 편의점================';
 const FREE_HEADER_MESSAGE = '=============증	정===============';
 const TOTAL_HEADER_MESSAGE = '====================================';
 const addComma = (price) => price.toLocaleString();
+const convertQuantity = (quantity) => {
+  if (!quantity || quantity === 0) return '재고 없음';
+  return `${quantity}개`;
+};
+
+/** @typedef {import('../service/ProductStock.js').default} ProductStockType */
 
 const OutputView = Object.freeze({
   showWelcomeMessage() {
@@ -14,15 +20,15 @@ const OutputView = Object.freeze({
 
   /**
    * 재고 목록을 출력합니다.
-   * @param {import('../types.js').ProductStockType} inventory
+   * @param {Map<string, ProductStockType>} inventory
    */
   showInventory(inventory) {
     Console.print(INVENTORY_HEADER_MESSAGE);
     this.printNewLine();
-    inventory.forEach((productStock, productName) => {
-      const { normal, promotion } = productStock;
-      if (promotion) this.showProduct(productName, promotion);
-      if (normal) this.showProduct(productName, normal);
+    inventory.forEach((stock, name) => {
+      if (stock.hasPromotion)
+        this.showProduct(name, stock.price, stock.promotionQuantity, stock.promoName);
+      this.showProduct(name, stock.price, stock.normalQuantity, '');
     });
     this.printNewLine();
   },
@@ -30,16 +36,11 @@ const OutputView = Object.freeze({
   /**
    * 상품 목록 1개를 출력합니다.
    * @param {string} productName - 상품명
-   * @param {import('../types.js').ProductStockInfoType} productStock - 상품 재고 정보
    */
-  showProduct(productName, productStock) {
-    const { price, quantity, promotion: originalPromotion } = productStock;
-    const promotion = (originalPromotion !== 'null' && originalPromotion) || '';
-    if (quantity) {
-      Console.print(`- ${productName} ${addComma(price)}원 ${quantity}개 ${promotion}`);
-    } else {
-      Console.print(`- ${productName} ${addComma(price)}원 재고 없음 ${promotion}`);
-    }
+  showProduct(productName, price, quantity, promoName) {
+    Console.print(
+      `- ${productName} ${addComma(price)}원 ${convertQuantity(quantity)} ${promoName}`
+    );
   },
 
   /**

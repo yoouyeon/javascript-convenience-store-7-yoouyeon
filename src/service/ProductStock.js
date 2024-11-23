@@ -38,6 +38,10 @@ class ProductStock {
     return this.#normal?.quantity || 0;
   }
 
+  get hasPromotion() {
+    return !!this.#promotion;
+  }
+
   /**
    * 상품 재고 정보를 설정합니다. (일반 재고와 프로모션 재고를 구분하여 설정)
    * @param {import('../types.js').SingleProductRawDataType} stockData - 상품명, 가격, 수량, 프로모션 정보
@@ -88,11 +92,11 @@ class ProductStock {
   #reduceQuantity(primary, extra, isPromotion) {
     if (isPromotion) {
       this.#promotion.quantity -= primary;
-      this.#normal.quantity -= extra;
-      return;
+      if (this.#normal) this.#normal.quantity -= extra;
+    } else {
+      this.#normal.quantity -= primary;
+      if (this.#promotion) this.#promotion.quantity -= extra;
     }
-    this.#normal.quantity -= primary;
-    this.#promotion.quantity -= extra;
   }
 
   /**
