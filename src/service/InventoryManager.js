@@ -1,6 +1,7 @@
 // @ts-check
 import ProductStock from './ProductStock.js';
 import CustomError from '../utils/CustomError.js';
+import PRODUCT_ERROR_MESSAGES from '../constants/productErrorMessages.js';
 
 /** @typedef {import('./ProductStock.js').default} ProductStockType */
 
@@ -26,13 +27,13 @@ class InventoryManager {
 
   getPromoName(productName) {
     const productStock = this.#inventoryMap.get(productName);
-    if (!productStock) throw new CustomError('존재하지 않는 상품입니다.');
+    if (!productStock) throw new CustomError(PRODUCT_ERROR_MESSAGES.notExistProduct);
     return productStock.promoName;
   }
 
   getPrice(productName) {
     const productStock = this.#inventoryMap.get(productName);
-    if (!productStock) throw new CustomError('존재하지 않는 상품입니다.');
+    if (!productStock) throw new CustomError(PRODUCT_ERROR_MESSAGES.notExistProduct);
     return productStock.price;
   }
 
@@ -45,9 +46,9 @@ class InventoryManager {
    */
   checkInventory(productName, quantity) {
     const productStock = this.#inventoryMap.get(productName);
-    if (!productStock) throw new CustomError(`존재하지 않는 상품입니다. 다시 입력해 주세요.`);
+    if (!productStock) throw new CustomError(PRODUCT_ERROR_MESSAGES.notExistProduct);
     if (productStock.totalQuantity < quantity)
-      throw new CustomError(`재고 수량을 초과하여 구매할 수 없습니다. 다시 입력해 주세요.`);
+      throw new CustomError(PRODUCT_ERROR_MESSAGES.exceedQuantity);
     return productStock;
   }
 
@@ -59,7 +60,7 @@ class InventoryManager {
    */
   decreaseStock(productName, quantity, isPromotion) {
     const productStock = this.#inventoryMap.get(productName);
-    if (!productStock) throw new CustomError('존재하지 않는 상품입니다.');
+    if (!productStock) throw new CustomError(PRODUCT_ERROR_MESSAGES.notExistProduct);
     productStock.decreaseStock(quantity, isPromotion);
   }
 }

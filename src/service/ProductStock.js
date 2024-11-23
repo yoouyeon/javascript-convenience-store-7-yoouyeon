@@ -1,5 +1,7 @@
 import validateUtils from '../utils/validateUtils.js';
 import CustomError from '../utils/CustomError.js';
+import PRODUCT_ERROR_MESSAGES from '../constants/productErrorMessages.js';
+import PROMOTION_ERROR_MESSAGES from '../constants/promotionErrorMessages.js';
 
 class ProductStock {
   /** @type {import('../types.js').ProductStockInfoType} */
@@ -101,8 +103,8 @@ class ProductStock {
     const { isValidNumber, isValidString } = validateUtils;
     const { price, quantity, promotion } = stockData;
     if (!isValidNumber(price) || !isValidNumber(quantity))
-      throw new CustomError('가격과 수량 정보가 숫자가 아닙니다.');
-    if (!isValidString(promotion)) throw new CustomError('프로모션 이름이 유효하지 않습니다.');
+      throw new CustomError(PRODUCT_ERROR_MESSAGES.invalidValue);
+    if (!isValidString(promotion)) throw new CustomError(PROMOTION_ERROR_MESSAGES.invalidName);
   }
 }
 

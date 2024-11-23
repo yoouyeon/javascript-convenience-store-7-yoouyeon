@@ -3,6 +3,7 @@ import CustomError from '../utils/CustomError.js';
 import Promotion from './Promotion.js';
 import InputView from '../view/InputView.js';
 import retryAsync from '../utils/retryAsync.js';
+import PROMOTION_ERROR_MESSAGES from '../constants/promotionErrorMessages.js';
 
 /** @typedef {import('./Promotion.js').default} PromotionType */
 
@@ -69,7 +70,7 @@ class PromotionManager {
     if (!promotionName || promotionName === 'null') return undefined;
     const promotion = this.#promotionMap.get(promotionName);
     if (!promotion) {
-      throw new CustomError('존재하지 않는 프로모션입니다.');
+      throw new CustomError(PROMOTION_ERROR_MESSAGES.notExist);
     }
     return promotion;
   }

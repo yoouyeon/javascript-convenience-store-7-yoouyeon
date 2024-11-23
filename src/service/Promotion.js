@@ -2,6 +2,7 @@
 import dateUtils from '../utils/dateUtils.js';
 import validateUtils from '../utils/validateUtils.js';
 import CustomError from '../utils/CustomError.js';
+import PROMOTION_ERROR_MESSAGES from '../constants/promotionErrorMessages.js';
 
 class Promotion {
   #name;
@@ -115,11 +116,11 @@ class Promotion {
     // promotions.md의 header 형식을 그대로 유지하기 위해서 camelcase를 사용하지 않음
     // eslint-disable-next-line camelcase
     const { name, buy, get, start_date, end_date } = singlePromotionRawData;
-    if (!isValidString(name)) throw new CustomError('프로모션 이름이 올바르지 않습니다.');
+    if (!isValidString(name)) throw new CustomError(PROMOTION_ERROR_MESSAGES.invalidName);
     if (!isValidNumber(buy) || !isValidNumber(get))
-      throw new CustomError('프로모션 수량이 숫자가 아닙니다.');
+      throw new CustomError(PROMOTION_ERROR_MESSAGES.invalidQuantity);
     if (!isValidDate(start_date) || !isValidDate(end_date))
-      throw new CustomError('프로모션 데이터의 날짜 형식이 올바르지 않습니다.');
+      throw new CustomError(PROMOTION_ERROR_MESSAGES.invalidDate);
   }
 }
 

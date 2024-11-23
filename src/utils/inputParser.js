@@ -1,6 +1,8 @@
 // @ts-check
 import validateUtils from './validateUtils.js';
 import CustomError from './CustomError.js';
+import INPUT_ERROR_MESSAGES from '../constants/inputErrorMessages.js';
+import PRODUCT_ERROR_MESSAGES from '../constants/productErrorMessages.js';
 
 const inputParser = Object.freeze({
   /**
@@ -31,22 +33,20 @@ const inputParser = Object.freeze({
   // 유효한 입력이 아닌 경우 에러를 발생시킵니다.
   checkValidInput(input) {
     if (!validateUtils.isValidString(input))
-      throw new CustomError('잘못된 입력입니다. 다시 입력해 주세요.');
+      throw new CustomError(INPUT_ERROR_MESSAGES.invalidInput);
   },
 
   // 유효한 yes/no 입력이 아닌 경우 에러를 발생시킵니다.
   checkValidYesOrNo(input) {
     if (!validateUtils.isValidYesOrNo(input))
-      throw new CustomError('잘못된 입력입니다. 다시 입력해 주세요.');
+      throw new CustomError(INPUT_ERROR_MESSAGES.invalidInput);
   },
 
   // 유효한 포맷이 아닌 경우 에러를 발생시킵니다.
   checkValidFormat(input) {
     const PRODUCT_DATA_FORMAT = /^\[[가-힣a-zA-Z0-9]+-\d+\]/;
     if (!PRODUCT_DATA_FORMAT.test(input))
-      throw new CustomError(
-        '올바르지 않은 형식으로 입력했습니다. 다시 입력해주세요. (예: [사이다-2],[감자칩-1])'
-      );
+      throw new CustomError(PRODUCT_ERROR_MESSAGES.invalidFormat);
   },
 });
 
