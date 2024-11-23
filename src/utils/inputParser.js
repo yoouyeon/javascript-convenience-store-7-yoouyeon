@@ -1,6 +1,6 @@
 // @ts-check
-import commonValidation from '../validation/commonValidation.js';
-import productValidation from '../validation/productValidation.js';
+import validateUtils from './validateUtils.js';
+import CustomError from './CustomError.js';
 
 const inputParser = Object.freeze({
   /**
@@ -9,12 +9,11 @@ const inputParser = Object.freeze({
    * @returns {Array<[string, number]>} 상품명과 수량 배열
    */
   parseProducts(input) {
-    commonValidation.checkEmpty(input);
+    inputParser.checkValidInput(input);
     const rawProducts = input.split(',');
     return rawProducts.map((rawProduct) => {
-      productValidation.checkFormat(rawProduct);
+      inputParser.checkValidFormat(rawProduct);
       const [name, quantity] = rawProduct.trim().slice(1, -1).split('-');
-      productValidation.checkProductData([name, quantity]);
       return [name, Number(quantity)];
     });
   },
@@ -25,8 +24,29 @@ const inputParser = Object.freeze({
    * @throw {CustomError} 유저 응답이 유효하지 않을 경우
    */
   yesOrNo(input) {
-    commonValidation.checkYesOrNo(input);
+    inputParser.checkValidYesOrNo(input);
     return input === 'Y';
+  },
+
+  // 유효한 입력이 아닌 경우 에러를 발생시킵니다.
+  checkValidInput(input) {
+    if (!validateUtils.isValidString(input))
+      throw new CustomError('잘못된 입력입니다. 다시 입력해 주세요.');
+  },
+
+  // 유효한 yes/no 입력이 아닌 경우 에러를 발생시킵니다.
+  checkValidYesOrNo(input) {
+    if (!validateUtils.isValidYesOrNo(input))
+      throw new CustomError('잘못된 입력입니다. 다시 입력해 주세요.');
+  },
+
+  // 유효한 포맷이 아닌 경우 에러를 발생시킵니다.
+  checkValidFormat(input) {
+    const PRODUCT_DATA_FORMAT = /^\[[가-힣a-zA-Z0-9]+-\d+\]/;
+    if (!PRODUCT_DATA_FORMAT.test(input))
+      throw new CustomError(
+        '올바르지 않은 형식으로 입력했습니다. 다시 입력해주세요. (예: [사이다-2],[감자칩-1])'
+      );
   },
 });
 

@@ -12,7 +12,11 @@ const csvUtils = Object.freeze({
    * @returns {Array<Record<string, string>>} - CSV 데이터를 파싱한 객체 배열
    */
   parseCsv(csvData) {
-    const rows = csvData.split(LINE_SEPARATOR).map((row) => row.split(','));
+    // 중간에 빈 줄이 있을 수 있으므로 filter로 제거
+    const rows = csvData
+      .split(LINE_SEPARATOR)
+      .filter((row) => row)
+      .map((row) => row.split(','));
     const headers = rows.shift();
     return rows.map((row) =>
       Object.fromEntries(row.map((value, index) => [headers[index], value]))
