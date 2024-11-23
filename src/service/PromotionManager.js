@@ -8,15 +8,9 @@ import PROMOTION_ERROR_MESSAGES from '../constants/promotionErrorMessages.js';
 /** @typedef {import('./Promotion.js').default} PromotionType */
 
 class PromotionManager {
-  // ========================
-  // 1. Member Variables
-  // ========================
   /** @type {Map<string, PromotionType>} */
   #promotionMap;
 
-  // ========================
-  // 2. Constructor
-  // ========================
   /**
    * @param {import('../types.js').PromotionRawDataType} promotionsRawData
    */
@@ -28,16 +22,10 @@ class PromotionManager {
     });
   }
 
-  // ========================
-  // 3. Getters
-  // ========================
   get currentPromotions() {
     return this.#promotionMap;
   }
 
-  // ========================
-  // 4. Public Methods
-  // ========================
   /**
    * 프로모션을 적용한다.
    * @param {{productName: string, count: number, promoStock: import('../types.js').ProductStockInfoType | undefined}} req - 프로모션 적용 요청 정보
@@ -58,9 +46,6 @@ class PromotionManager {
     return this.#checkPromotionAvailability(promoName).promotion?.isAvailable() || false;
   }
 
-  // ========================
-  // 5. Private Methods
-  // ========================
   /**
    * 프로모션 정보를 반환
    * @param {string=} promotionName

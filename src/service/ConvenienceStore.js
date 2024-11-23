@@ -16,20 +16,11 @@ const MAX_DISCOUNT = 8000;
 /** @typedef {import('../types.js').PromotionRawDataType} PromotionRawDataType */
 
 class ConvenienceStore {
-  // ========================
-  // 1. Member Variables
-  // ========================
   #inventoryManager;
 
   #promotionManager;
 
-  // ========================
-  // 2. Public Methods
-  // ========================
-
-  /**
-   * 편의점 재고 및 프로모션 데이터를 초기화합니다.
-   */
+  // 편의점 재고 및 프로모션 데이터를 초기화합니다.
   async init() {
     const productRawData = /** @type {ProductRawDataType} */ (
       await csvUtils.readParsedCsv(PRODUCTS_FILE_PATH)
@@ -41,32 +32,21 @@ class ConvenienceStore {
     this.#promotionManager = new PromotionManager(promotionRawData);
   }
 
-  /**
-   * 편의점 기능을 실행합니다.
-   */
+  // 편의점 기능을 실행합니다.
   async run() {
     this.#checkIsInitialized();
     // NOTE : 과제 제출 코드에서는 await이 누락되어 ApplicationTest.js에서 4개 중 3개의 테스트가 실패했습니다.
     await this.#processPurchase();
   }
 
-  // ========================
-  // 3. Private Methods
-  // ========================
-
-  /**
-   * 편의점 데이터가 초기화되었는지 확인합니다.
-   * @throws {Error} 편의점 데이터가 설정되지 않았을 경우
-   */
+  // 편의점 데이터가 초기화되었는지 확인합니다.
   #checkIsInitialized() {
     if (!this.#inventoryManager || !this.#promotionManager) {
       throw new Error('편의점 데이터가 설정되지 않았습니다.');
     }
   }
 
-  /**
-   * 구매 프로세스를 실행합니다.
-   */
+  // 구매 프로세스를 실행합니다.
   async #processPurchase() {
     this.#showStartupInfo();
     await this.#purchaseProduct();
@@ -76,17 +56,13 @@ class ConvenienceStore {
     }
   }
 
-  /**
-   * 편의점 시작 정보를 출력합니다 (환영 인사, 재고 상태).
-   */
+  // 편의점 시작 정보를 출력합니다 (환영 인사, 재고 상태).
   #showStartupInfo() {
     OutputView.showWelcomeMessage();
     OutputView.showInventory(this.#inventoryManager.currentInventory);
   }
 
-  /**
-   * 상품 구매를 처리합니다.
-   */
+  // 상품 구매를 처리합니다.
   async #purchaseProduct() {
     const purchaseInfo = await retryAsync(this.#inputPurchaseInfo.bind(this));
     const promotionResult = await this.#applyPromotion(purchaseInfo);
@@ -99,9 +75,7 @@ class ConvenienceStore {
     return promotionResult;
   }
 
-  /**
-   * 상품 구매 정보를 입력받고 재고 확인을 수행합니다.
-   */
+  // 상품 구매 정보를 입력받고 재고 확인을 수행합니다.
   async #inputPurchaseInfo() {
     const products = await InputView.readProducts();
     products.forEach((product) => {
@@ -128,6 +102,8 @@ class ConvenienceStore {
 
   /**
    * 개별 상품에 프로모션을 적용합니다.
+   * @param {string} productName - 상품 이름
+   * @param {number} count - 상품 개수
    */
   async #applyEachPromotion(productName, count) {
     const stock = this.#inventoryManager.checkInventory(productName, count);
@@ -167,6 +143,7 @@ class ConvenienceStore {
 
   /**
    * 멤버십 할인을 적용할 수 있는 총 가격을 계산합니다.
+   * @param {Array<{productName: string, quantity: import('../types.js').PromotionQuantityType}>} promotionResult - 프로모션 적용 결과
    */
   #calculateTotalNonpromoPrice(promotionResult) {
     return promotionResult.reduce((acc, { productName, quantity }) => {
@@ -224,6 +201,10 @@ class ConvenienceStore {
     OutputView.showTotalPrint(total, promoDiscount, membershipDiscount, final);
   }
 
+  /**
+   * 총 구매 개수와 가격을 계산합니다.
+   * @param {Array<{productName: string, quantity: import('../types.js').PromotionQuantityType}>} promotionResult - 프로모션 적용 결과
+   */
   #calculateTotalCount(promotionResult) {
     return promotionResult.reduce(
       (acc, { productName, quantity }) => ({
@@ -234,6 +215,10 @@ class ConvenienceStore {
     );
   }
 
+  /**
+   * 프로모션 할인 금액을 계산합니다.
+   * @param {Array<{productName: string, quantity: import('../types.js').PromotionQuantityType}>} promotionResult - 프로모션 적용 결과
+   */
   #calculatePromoDiscount(promotionResult) {
     return promotionResult.reduce(
       (acc, { productName, quantity }) =>
